@@ -9435,7 +9435,7 @@
 		"Olmsted County, MN"	27109
 		"Wabasha County, MN"	27157
 		"Winona County, MN"	27169
-"Todd County, MN"	27111	"Becker County, MN"	27005
+"Otter Tail County, MN"	27111	"Becker County, MN"	27005
 		"Clay County, MN"	27027
 		"Douglas County, MN"	27041
 		"Grant County, MN"	27051
@@ -9626,7 +9626,7 @@
 		"Pierce County, WI"	55093
 		"Polk County, WI"	55095
 		"St. Croix County, WI"	55109
-	27165	"Blue Earth County, MN"	27013
+"Watonwan County, MN"	27165	"Blue Earth County, MN"	27013
 		"Brown County, MN"	27015
 		"Cottonwood County, MN"	27033
 		"Jackson County, MN"	27063
@@ -21801,7 +21801,7 @@
 		"Hatillo Municipio, PR"	72065
 		"Lares Municipio, PR"	72081
 		"Quebradillas Municipio, PR"	72115
-		"San Sebastißn Municipio, PR"	72131
+		"San Sebastián Municipio, PR"	72131
 "Canóvanas Municipio, PR"	72029	"Canóvanas Municipio, PR"	72029
 		"Carolina Municipio, PR"	72031
 		"Gurabo Municipio, PR"	72063
@@ -21816,7 +21816,7 @@
 		"Loíza Municipio, PR"	72087
 		"San Juan Municipio, PR"	72127
 		"Trujillo Alto Municipio, PR"	72139
-"Cataño Municipio, PR"	72033	"Bayam?n Municipio, PR"	72021
+"Cataño Municipio, PR"	72033	"Bayamón Municipio, PR"	72021
 		"Cataño Municipio, PR"	72033
 		"Guaynabo Municipio, PR"	72061
 		"San Juan Municipio, PR"	72127
@@ -22009,7 +22009,7 @@
 		"Las Marías Municipio, PR"	72083
 		"Maricao Municipio, PR"	72093
 		"Mayagüez Municipio, PR"	72097
-		"Rinc?n Municipio, PR"	72117
+		"Rincón Municipio, PR"	72117
 		"San Germán Municipio, PR"	72125
 "Moca Municipio, PR"	72099	"Aguada Municipio, PR"	72003
 		"Aguadilla Municipio, PR"	72005
@@ -22057,19 +22057,19 @@
 		"Ponce Municipio, PR"	72113
 "Ponce Municipio, PR"	72113	"Adjuntas Municipio, PR"	72001
 		"Jayuya Municipio, PR"	72073
-		"Juana D?az Municipio, PR"	72075
+		"Juana Díaz Municipio, PR"	72075
 		"Peñuelas Municipio, PR"	72111
 		"Ponce Municipio, PR"	72113
 		"Utuado Municipio, PR"	72141
 "Quebradillas Municipio, PR"	72115	"Camuy Municipio, PR"	72027
 		"Isabela Municipio, PR"	72071
 		"Quebradillas Municipio, PR"	72115
-		"San Sebastißn Municipio, PR"	72131
+		"San Sebastián Municipio, PR"	72131
 "Rincón Municipio, PR"	72117	"Aguada Municipio, PR"	72003
 		"Añasco Municipio, PR"	72011
 		"Mayagüez Municipio, PR"	72097
 		"Rincón Municipio, PR"	72117
-"Río Grande Municipio, PR"	72119	"Can?vanas Municipio, PR"	72029
+"Río Grande Municipio, PR"	72119	"Canóvanas Municipio, PR"	72029
 		"Ceiba Municipio, PR"	72037
 		"Las Piedras Municipio, PR"	72085
 		"Loíza Municipio, PR"	72087
@@ -22080,7 +22080,7 @@
 		"Lajas Municipio, PR"	72079
 		"Maricao Municipio, PR"	72093
 		"Sabana Grande Municipio, PR"	72121
-		"San Germßn Municipio, PR"	72125
+		"San Germán Municipio, PR"	72125
 		"Yauco Municipio, PR"	72153
 "Salinas Municipio, PR"	72123	"Aibonito Municipio, PR"	72009
 		"Cayey Municipio, PR"	72035

@@ -27,10 +27,10 @@ class Parameters(object):
 
 
 def main():
-    param_file = sys.argv[0]
-    input_dir = sys.argv[1]
-    output_dir = sys.argv[2]
-    log_dir = sys.argv[3]
+    param_file = sys.argv[1]
+    input_dir = sys.argv[2]
+    output_dir = sys.argv[3]
+    log_dir = sys.argv[4]
 
     #_________________________________________________________________________
     ## Supporting data files that are used in the processing
@@ -66,6 +66,7 @@ def main():
     #     data_fn = data_root + 'Full/' + 'Flu_ILI_Full.csv'
     # else:
     #     raise SystemExit('No such problem set!')
+    data_fn = osp.join(input_dir, 'Flu_ILI.csv')
 
 
     # specify whether to use sparse matrix formulation

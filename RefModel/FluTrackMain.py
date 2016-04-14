@@ -37,9 +37,6 @@ def main():
     #   including adjacency map, tweet counts, etc.
     #
 
-    # # supporting data files directory
-    # root = 'C:/Users/syu/project/1614/data/Ch7_Data/ProblemSubsets/SupportingData/'
-
     # file that stores adjacent counties of each county in US (lower 48)
     adj_fn = osp.join(input_dir, 'county_adjacency_lower48.txt')
 
@@ -56,18 +53,7 @@ def main():
     #
     #
 
-    # # file that stores observed ILI rates in different regions, states and/or districts
-    # data_root = 'C:/Users/syu/project/1614/data/Ch7_Data/ProblemSubsets/'
-    # if ProbSet is 'Small':
-    #     data_fn = data_root + 'Small/' + 'Flu_ILI_Small.csv'
-    # elif ProbSet is 'Middle':
-    #     data_fn = data_root + 'Middle/' + 'Flu_ILI_Mid.csv'
-    # elif ProbSet is 'Full':
-    #     data_fn = data_root + 'Full/' + 'Flu_ILI_Full.csv'
-    # else:
-    #     raise SystemExit('No such problem set!')
     data_fn = osp.join(input_dir, 'Flu_ILI.csv')
-
 
     # specify whether to use sparse matrix formulation
     isSparse = True
@@ -94,15 +80,6 @@ def main():
     # If empty or None, then all states are of interest.
 
     STATES = None
-    # if ProbSet is 'Small':
-    #     STATES = ['MS']
-    # elif ProbSet is 'Middle':
-    #     STATES = ['AL', 'FL', 'GA', 'KY', 'MS', 'NC', 'SC', 'TN']
-    #     #STATES = ['MS', 'TN']
-    # elif ProbSet is 'Full':
-    #     STATES = []
-    # else:
-    #     raise SystemExit('No such problem set!')
 
 
     #_________________________________________________________________________

@@ -79,7 +79,8 @@ def main():
     ## Specify the states of interest for processing in 2-letter state postal code
     # If empty or None, then all states are of interest.
 
-    STATES = None
+    with open(osp.join(input_dir, "states.txt")) as f:
+        STATES = f.read().splitlines()
 
 
     #_________________________________________________________________________

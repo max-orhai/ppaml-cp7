@@ -1,0 +1,8 @@
+matplotlib
+scipy
+NumPy==1.8.2
+networkx
+nose
+pymc==2.3.4
+simplejson
+cvxopt

@@ -15,4 +15,4 @@ eval_output_dir=$3
 
 [ -d $eval_output_dir ] || mkdir $eval_output_dir
 
-python Evaluation.py $1 $2 $3
+python $ABSOLUTE_PATH/Evaluation.py $1 $2 $3

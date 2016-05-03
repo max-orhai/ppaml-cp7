@@ -1,9 +1,11 @@
 #!/bin/bash
 
+ABSOLUTE_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+
 if [ ! -d "venv" ]; then
-  virtualenv venv
+  virtualenv $ABSOLUTE_PATH/venv
 fi
 
-source venv/bin/activate
+source $ABSOLUTE_PATH/venv/bin/activate
 
-pip install -r requirements.txt
+pip install -r $ABSOLUTE_PATH/requirements.txt

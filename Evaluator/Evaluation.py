@@ -18,7 +18,7 @@ def main():
     eval_dir = sys.argv[1]
     input_dir = sys.argv[2]
     output_dir = sys.argv[3]
-    # log_dir = sys.argv[4]
+    log_dir = sys.argv[4]
 
     #_________________________________________________________________________
     ## Supporting data files that are used in the processing
@@ -51,7 +51,7 @@ def main():
     #
     #
 
-    # metric_fn = osp.join(log_dir, 'eval_metric.csv')
+    metric_fn = osp.join(log_dir, 'eval_metric.csv')
 
     
     #_________________________________________________________________________
@@ -141,9 +141,8 @@ def main():
     #_________________________________________________________________________
     ## save the evaluation results
     metric_str = 'Sum of squared errors: ' + str(sum_squared_err) + '\n'
-    print(metric_str)
-    # with open(metric_fn, 'wb') as fobj:
-    #     fobj.write(metric_str)
+    with open(metric_fn, 'wb') as fobj:
+        fobj.write(metric_str)
             
     return
         

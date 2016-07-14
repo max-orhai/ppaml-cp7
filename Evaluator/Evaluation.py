@@ -122,6 +122,7 @@ def main():
     wgt_ILI = {}
     wgt_Err = {}
     sum_squared_err = 0
+    count = 0
     for (region_name, week) in ObsDataFlat:
         tmp_wgt_ILI = 0
         wgt = 0
@@ -135,12 +136,14 @@ def main():
         wgt_Err[(region_name, week)] = ObsDataFlat[(region_name, week)] - wgt_ILI[(region_name, week)]
         # sum of squared errors of all regions and weeks
         sum_squared_err = sum_squared_err + wgt_Err[(region_name, week)]**2
-
-
+        count += 1
+    mean_squared_err = sum_squared_err / count
+    root_mean_squared_err = sqrt(mean_squared_err)
 
     #_________________________________________________________________________
     ## save the evaluation results
-    metric_str = 'Sum of squared errors: ' + str(sum_squared_err) + '\n'
+    # metric_str = 'Sum of squared errors: ' + str(sum_squared_err) + '\n'
+    metric_str = 'Root mean squared error: ' + str(root_mean_squared_err) + '\n'
     with open(metric_fn, 'wb') as fobj:
         fobj.write(metric_str)
             

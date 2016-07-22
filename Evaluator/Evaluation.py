@@ -9,6 +9,7 @@ import os.path as osp
 import simplejson as json
 from collections import OrderedDict
 from datetime import datetime
+from math import sqrt
 import csv
 
 

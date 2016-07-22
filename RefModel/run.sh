@@ -13,6 +13,8 @@ if [ ! -d "$4" ]; then
     mkdir -p $4
 fi
 
+# FluTrackMain.py does not use $1 or $4, which is why we must
+# tee it into the log directory (#4).
 CMD="python FluTrackMain.py $1 $2 $3 $4 2>&1 | tee $4/run.log"
 echo $CMD
 $CMD

@@ -6,6 +6,7 @@
 import numpy as np
 import scipy.sparse as spa
 import scipy.special
+import scipy.stats
 import pymc
 import pymc.MCMC
 
@@ -23,24 +24,67 @@ def LogLinkPoissonObs(Coefficients, Predictor=None, Observation=None):
 def LinearLinkBetaObs(Coefficients, Predictor=None, Observation=None, Draw=False):
     ''' Log-likelihood of observation with Beta noise and linear link
 
-    Coefficients[0] is the observation matrix (C in Cx) and is a
-       Scipy sparse matrix
-    Coefficients[1] is the precision parameter
-    Cx is the mean of the Beta distribution.
+    Coefficients[0] is the precision parameter
     The Beta distribution is parameterized as in
     Ferrari and Cribari-Neto, 2004.
     '''
 
-    mu = Coefficients[0].dot(Predictor)
-    alpha = mu*Coefficients[1] # \mu * \phi
-    beta = Coefficients[1]*(1-mu) # \phi * (1 - \mu)
+    mu = Predictor
+    alpha = mu*Coefficients[0] # \mu * \phi
+    beta = Coefficients[0]*(1-mu) # \phi * (1 - \mu)
 
     if Draw:
         # draw samples
         return scipy.stats.beta.rvs(alpha, beta)
     else:
         # compute log-likelihood
-        return pymc.beta_like(Observation[:,None],alpha,beta)
+        if hasattr(Coefficients[0], "__len__"):
+            if len(Coefficients) == 1:
+                # each observation has a different parameter value
+                loglike = np.sum([pymc.beta_like(Observation[ic,None], alpha[ic], beta[ic]) 
+                                    for ic in range(len(alpha))])
+            else:
+                # some observations share the same PDF; this saves time
+                loglike = 0
+                for idx in range(len(Coefficients[1])):
+                    obs_idx = Coefficients[1][idx]
+                    loglike = loglike + np.sum(pymc.beta_like(
+                        Observation[obs_idx,None], alpha[obs_idx], beta[obs_idx]))
+            return loglike
+        else:
+            return pymc.beta_like(Observation[:,None], alpha, beta)
+        
+def LinearLinkTruncatedNormalObs(Coefficients, Predictor=None, Observation=None, Draw=False, TruncRng=[0.,1.]):
+    ''' Log-likelihood of observations with truncated normal noise and linear link
+    
+    Coefficients[0] is the precision parameter
+    The normal distribution is truncated to TruncRng = [lower, upper]
+    '''
+    
+    mu = Predictor
+    tau = Coefficients[0]
+    if Draw:
+        # draw samples
+        return scipy.stats.truncnorm.rvs(mu, tau, a=TruncRng[0], b=TruncRng[1])
+    else:
+        # compute log-likelihood
+        if hasattr(Coefficients[0], "__len__"):
+            if len(Coefficients) == 1:
+                # each observation has a different parameter value
+                loglike = np.sum([pymc.truncated_normal_like(
+                    Observation[ic,None], mu[ic], tau[ic], a=TruncRng[0], b=TruncRng[1]) 
+                    for ic in range(len(mu))])
+            else:
+                # some observations share the same PDF; this saves time
+                loglike = 0
+                for idx in range(len(Coefficients[1])):
+                    obs_idx = Coefficients[1][idx]
+                    loglike = loglike + np.sum(pymc.truncated_normal_like(
+                        Observation[obs_idx,None], mu[obs_idx], tau[obs_idx], a=TruncRng[0], b=TruncRng[1]))
+            return loglike
+        else:
+            return pymc.truncated_normal_like(Observation[:,None], mu, tau, a=TruncRng[0], b=TruncRng[1])
+    
     
 # a dictionary used to define the functions that are available for random-effects term
 RandomEffectsMethods = {"GaussianMRF": GaussianMRF}
@@ -51,13 +95,15 @@ PyMC_Distributions = {"Gamma": pymc.Gamma,
 
 # link function and observation pair
 LinkFuncObs = {("log", "Poisson"): LogLinkPoissonObs,
-               ("linear", "Beta"): LinearLinkBetaObs}
+               ("linear", "Beta"): LinearLinkBetaObs,
+                ("linear", "TruncatedNormal"): LinearLinkTruncatedNormalObs}
 
 # Define Generalized Linear Mixed-Effects Model Class
 class GLMM(object):
     
     def __init__(self, RandEff_Param, FixedEff_Param, LinkObs_Param, gridParams,
-                 isSparse = False, GridMask = np.array(np.NaN)):
+                 isSparse=False, GridMask = np.array(np.NaN), isNoSample=False,
+                 ObsCoef_Param =None):
         ''' Initialize a Generalized Linear Mixed Model (GLMM)
         
         Inputs:
@@ -67,6 +113,9 @@ class GLMM(object):
             isSparse: if True, the random-effects terms are constructed using sparse matrices
             GridMask: a mask to define the region of interest; data outside the
                 region of interest is ignored in the estimation.
+            isNoSample: if True, the precision and b vector definition is used to
+                define the GMRF, and it doesn't have the ability to draw samples or
+                convert to other GMRF definition (e.g. mean, covariance)
         '''
       
         self._RandEff_Param = RandEff_Param
@@ -74,10 +123,11 @@ class GLMM(object):
         self._LinkObs_Param = LinkObs_Param
         self._isSparse = isSparse
         self._gridParams = gridParams
+        self._ObsCoef_Param = ObsCoef_Param
         # dictionary variable to store estimation results
         self.Result = dict()
         # last sample (after thinning) of MCMC run
-        self.lastMCMCsample = dict()
+        self.lastMCMCsample = dict()                     
         
         # Initializing MRF based on how the random field is defined.
         # Currently, only the GMRF is defined. In the future, definitions of the
@@ -85,8 +135,20 @@ class GLMM(object):
         self.GMRF = list()
         for iDim in range(len(RandEff_Param)):
             self.GMRF.append(RandomEffectsMethods[RandEff_Param[iDim].Method](
-                RandEff_Param[iDim], self._isSparse))
+                RandEff_Param[iDim], self._isSparse, isNoSample))
                     
+        # Find indices of observations with the same PDF to speed up computation
+        # Modify LinkCoef to append a list where each element is a list of
+        # indices whose corresponding observations share the same PDF 
+        for idx, linkObs in enumerate(LinkObs_Param):
+            if hasattr(linkObs.LinkCoef[1], '__len__'):
+                unique_val = np.unique(linkObs.LinkCoef[1])
+                if len(unique_val) < len(linkObs.LinkCoef[1]):
+                    # only do it when there are same observation PDF
+                    idx_same_pdf = []
+                    for val in unique_val:
+                        idx_same_pdf.append(np.where(linkObs.LinkCoef[1]==val)[0])
+                    self._LinkObs_Param[idx].LinkCoef.append(idx_same_pdf)
             
     
     def Update(self, observations, UpdateParams):
@@ -139,7 +201,24 @@ class GLMM(object):
         # Include fixed-effects coefficients in the model
         if len(fe_coef) > 0:
             ModelDict['FixedEffects'] = fe_coef
+
         
+        #_________________________________________________________________________
+        # Scaling coefficients of second or more sets of observations
+        obs_coef = list()
+        for i in range(1,len(observations)):
+            # for each set of observation starting from the second set
+            for j in range(2):
+                # for slope and intercept coefficients
+                obs_coef.append(pymc.Normal(
+                    'obs_coef_{0}{1}'.format(i, j),
+                    mu = self._ObsCoef_Param[i].PriorMean[j],
+                    tau= self._ObsCoef_Param[i].PriorPrec[j],
+                    value = self._ObsCoef_Param[i].PriorMean[j]))
+
+        # Include observation coefficients in the model
+        if len(obs_coef) > 0:
+            ModelDict['ObsCoef'] = obs_coef
         
         
         #_________________________________________________________________________
@@ -220,7 +299,7 @@ class GLMM(object):
                 total_effects += np.dot(FixedEffectsCovariates, np.array(FixedEffectsCoeff)[:,None])
 
             # inverse log-odds of total effects
-            total_effects = scipy.special.expit(total_effects)
+            #total_effects = scipy.special.expit(total_effects)
                     
             return total_effects
 
@@ -232,22 +311,53 @@ class GLMM(object):
         #_________________________________________________________________________
         # Observations
 
+        # primary observations
         # Observed data
         @pymc.stochastic(dtype=float, observed=True)
-        def Observation(value=observations, Predictor=Predictor):
+        def Observation(value=observations[0], Predictor=Predictor):
             ''' Given predictor output (fixed and random effects), calculate 
                 likelihood of the observation '''
     
             def logp(value, Predictor):
-                ''' log likelihood '''
-                return LinkFuncObs[self._LinkObs_Param.LinkFunc,
-                                       self._LinkObs_Param.ObsDist](
-                                           self._LinkObs_Param.LinkCoef,
-                                           Predictor=Predictor,
-                                           Observation=value)
+                trns_predictor = self._LinkObs_Param[0].LinkCoef[0]*scipy.special.expit(Predictor)
+                log_prob = LinkFuncObs[self._LinkObs_Param[0].LinkFunc,
+                                       self._LinkObs_Param[0].ObsDist](
+                                           self._LinkObs_Param[0].LinkCoef[1:],
+                                           Predictor=trns_predictor,
+                                           Observation=value,
+                                           TruncRng=[0.,1.])
+                return log_prob
 
         # Include observations in the model
         ModelDict['Observation'] = Observation
+
+
+        # Auxiliary observations        
+        ObsAux = list()
+        for i in range(1,len(observations)):
+            @pymc.stochastic(dtype=float, observed=True)
+            def ObservationAux(value=observations[i], Predictor=Predictor, ObsCoef=obs_coef):
+                def logp(value, Predictor, ObsCoef):
+                    trns_predictor = self._LinkObs_Param[i].LinkCoef[0]*(
+                        np.exp(ObsCoef[(i-1)*2]*Predictor + ObsCoef[(i-1)*2+1]))
+                    log_prob = LinkFuncObs[self._LinkObs_Param[i].LinkFunc,
+                                           self._LinkObs_Param[i].ObsDist](
+                                               self._LinkObs_Param[i].LinkCoef[1:],
+                                               Predictor=trns_predictor,
+                                               Observation=value,
+                                               TruncRng=[0,np.inf])
+                    return log_prob
+                
+            # assign a unique name for each term
+            ObservationAux.__name__ = 'ObservationAux_{}'.format(i)
+            
+            # Combine all terms in a list for the PyMC container class
+            ObsAux.append(ObservationAux)
+
+        if len(observations) > 1:
+            # Include random effects in the model
+            ModelDict['ObsAux'] = ObsAux        
+        
         
         #_________________________________________________________________________
         # Prepare model for PyMC
@@ -284,8 +394,10 @@ class GLMM(object):
                 try:
                     db = pymc.database.pickle.load(UpdateParams.SessionDatabaseFile)
                     PyMC_MCMC = pymc.MCMC([Model], db=db)
+                    print 'here'
                 except:
                     PyMC_MCMC = pymc.MCMC([Model], db='pickle', dbname=UpdateParams.SessionDatabaseFile)
+                    print 'there'
                 PyMC_MCMC.sample(UpdateParams.NumSample, burn=UpdateParams.NumBurnIn,
                                  thin=UpdateParams.Thinning)
                 PyMC_MCMC.db.close()
@@ -306,7 +418,9 @@ class GLMM(object):
                         # iterate through each variable in the model term (e.g. RandomEffects)
                         # val[i].__name__ is the actual name for each variable
                         if isinstance(val[i], pymc.PyMCObjects.Stochastic):
-                            self.Result[val[i].__name__] = PyMC_MCMC.trace(val[i].__name__)[:]
+                            if not val[i].observed:
+                                # only if it's not observed
+                                self.Result[val[i].__name__] = PyMC_MCMC.trace(val[i].__name__)[:]
 
             
             # additional samples to save
@@ -318,7 +432,7 @@ class GLMM(object):
             # maximum a posteriori
             PyMC_MAP = pymc.MAP([Model])            
             PyMC_MAP.fit()
-            self.Result['MAP'] = PyMC_MAP
+            self.Result['Predictor'] = PyMC_MAP('Predictor')[:]
         else:
             raise ValueError("No such update method.")
 

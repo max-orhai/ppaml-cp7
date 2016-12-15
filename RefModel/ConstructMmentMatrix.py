@@ -14,7 +14,8 @@ from datetime import datetime
 '''
 Read observed data and construct observation vector and measurement matrix
 '''
-def ConstructMmentMatrix(data_fn, map_fn, CountyName, dates, CountyInfo=None, region2avoid=[], isSparse=True):
+def ConstructMmentMatrix(data_fn, map_fn, CountyName, dates, obserr_fn=None,
+                         CountyInfo=None, region2avoid=[], isSparse=True):
     # @param data_fn: CSV file that stores the observed weekly ILI from different
     #  regions, states and districts
     # @param map_fn: JSON file that stores the counties that are in each
@@ -25,6 +26,8 @@ def ConstructMmentMatrix(data_fn, map_fn, CountyName, dates, CountyInfo=None, re
     # @param dates: a tuple (earliest, latest) that specifies the earliest
     #  and latest dates of the temporal grid points. Both elements are
     #  datetime objects.
+    # @param obserr_fn: CSV file that stores the coefficient of the PDF for each
+    #   corresponding observation in the data_fn CSV file 
     # @param CountyInfo: county geographic and demographic information
     #  {FIPS: {"Population, 2010": 23000, ...}}
     # @param region2avoid: specify the region (as defined in the header of csv
@@ -58,24 +61,45 @@ def ConstructMmentMatrix(data_fn, map_fn, CountyName, dates, CountyInfo=None, re
         for row in reader:
             data = {key:val for (key,val) in zip(header,row)}
             ObsData.append(data)
+    
+    # read coefficients of observation PDF
+    if obserr_fn is not None:
+        ErrData = [] # observation error parameter
+        with open(obserr_fn, 'rb') as fobj:
+            reader = csv.reader(fobj)
+            header = reader.next()
+            # data: a list of dictionaries {column name: cell value}
+            for row in reader:
+                data = {key:val for (key,val) in zip(header,row)}
+                ErrData.append(data)
 
-    ## flatten the ILI data
+    ## flatten the data
     DateRegion = [] # DataRegion: [(date,region name),...]
     ObsDataFlat = [] # ObsDataFlat: [ILI rate,]
+    ErrDataFlat = [] # [ILI obs error parameter]
     region_name = header[3:] # name starts from the 4th column
-    for data in ObsData: # each week
+    for irow, data in enumerate(ObsData): # each week
         this_week = datetime.strptime(data['Ending'], '%m/%d/%Y')
         if (this_week >= earliest) and (this_week <= latest):
             for name in region_name: # each regione
-                if (data[name] != 'NaN') and (name not in region2avoid) and (data[name] > 0.00001):
+                if (data[name] != 'NaN') and (name not in region2avoid):
                     # only it's not in the region to avoid and it's not NaN
                     # DateRegion records the time and region names in the
                     # same order as the flatten data ObsDataFlat
                     DateRegion.append((this_week,name))
-                    ObsDataFlat.append(float(data[name][:-1])/100.)
+                    if data[name][-1] == '%':
+                        # the values are in percentage
+                        ObsDataFlat.append(float(data[name][:-1])/100.)
+                    else:
+                        ObsDataFlat.append(float(data[name]))
+                    if obserr_fn is not None:
+                        assert ErrData[irow]['Ending']==data['Ending'], "observation and error files mismatch"
+                        ErrDataFlat.append(float(ErrData[irow][name]))
                     # the last character is %
     ObsDataFlat = np.array(ObsDataFlat)
     ObsDataFlat = ObsDataFlat[np.newaxis].T # convert to 2D array
+    if obserr_fn is not None:
+        ErrDataFlat = np.array(ErrDataFlat)[np.newaxis].T
     
     ## read the mapping from region to counties
     # mapping: {region name: {FIPS: county name}}
@@ -85,7 +109,7 @@ def ConstructMmentMatrix(data_fn, map_fn, CountyName, dates, CountyInfo=None, re
     ## relate spatio-temporal grid to observations
     #  Cm: [no. of measurements, no. of spatio-temporal grid points]
     if isSparse:
-        Cm = spa.lil_matrix((ObsDataFlat.shape[0],num_cell))
+        Cm = spa.csr_matrix((ObsDataFlat.shape[0],num_cell), dtype='float32')
     else:
         Cm = np.zeros((ObsDataFlat.shape[0],num_cell))
     # fips_order: {fips: order in the spatial grid}
@@ -114,7 +138,10 @@ def ConstructMmentMatrix(data_fn, map_fn, CountyName, dates, CountyInfo=None, re
             
         counter = counter + 1 # counter for the element in measurement vector
 
-    return (Cm, ObsDataFlat)
+    if obserr_fn is None:
+        return (Cm, ObsDataFlat)
+    else:
+        return (Cm, ObsDataFlat, ErrDataFlat)
 
 
 '''

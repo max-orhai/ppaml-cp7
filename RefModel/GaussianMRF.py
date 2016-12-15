@@ -10,6 +10,11 @@ import StrucMat
 import MultivariateGaussian as MultiG
 
 
+class GMRF(object):
+    ''' An empty class object to store anything similar to the structure format
+    '''
+    pass
+
 # Using closure to define zero matrices that work for both sparse and dense matrices
 def make_zero_matrix(isSparse):
     def zero_matrix(shape):
@@ -20,7 +25,20 @@ def make_zero_matrix(isSparse):
     return zero_matrix
 
 # Define Gaussian Markov Random Field
-def GaussianMRF(paramClass, isSparse):
+def GaussianMRF(paramClass, isSparse=False, isNoSample=False):
+    ''' Construct a GMRF class
+
+    Inputs:
+      paramClass: parameters for defining the GMRF
+      isSparse: if True, GMRF is constructed using sparse matrices
+      isNoSample: if True, the precision and b vector definition is used to
+        define the GMRF, and it doesn't have the ability to draw samples or
+        convert to other GMRF definition (e.g. mean, covariance)
+    Output:
+      GMRF object where b and precision matrix are its members.
+        If isNoSample is false, then it can be used to draw samples or
+        compute mean and covariance matrix.
+    '''
     
     # zero matrix function whose format (sparse or dense) is defined by users
     zero_matrix = make_zero_matrix(isSparse)
@@ -66,9 +84,15 @@ def GaussianMRF(paramClass, isSparse):
     for row in range(StrucM.shape[0]):
         nzidx = StrucM[row,:].nonzero()
         StrucM[row,nzidx[1]] = StrucM[row,nzidx[1]]/StrucM[row,row]
-    
-    # return a multivariate Gaussian distribution object (GMRF)                
-    return MultiG.MultivariateGaussian(
-        bVec = zero_matrix((StrucM.shape[0], 1)),
-        PrecMat = paramClass.RandomField_Prec * StrucM,
-        isSparse = isSparse)
+
+    if isNoSample:
+        # return a GMRF object that has b and prec. matrix as its only members
+        GMRF.bVec = zero_matrix((StrucM.shape[0], 1))
+        GMRF.PrecMat = paramClass.RandomField_Prec * StrucM
+        return GMRF
+    else:
+        # return a multivariate Gaussian distribution object (GMRF)                
+        return MultiG.MultivariateGaussian(
+            bVec = zero_matrix((StrucM.shape[0], 1)),
+            PrecMat = paramClass.RandomField_Prec * StrucM,
+            isSparse = isSparse)

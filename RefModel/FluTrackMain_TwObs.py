@@ -3,6 +3,7 @@ Main script to run the hierarchical spatio-temporal model for CP7
 
 @author: Ssu-Hsin Yu (syu@ssci.com)
 """
+from sys import argv
 
 import simplejson as json
 from collections import OrderedDict
@@ -16,7 +17,7 @@ import scipy.special
 import SaveSmpl
 
 
-from GIS import GIS_Utilities
+import GIS_Utilities
 #from GaussianMRF import GaussianMRF
 import FluSpread_TwObs as FluSpread
 
@@ -25,36 +26,19 @@ import ConstructMmentMatrix as CM
 # To generate covariates based on vaccination & tweet data in JSON
 import DefineCovariates as DC
 
-class Parameters(object):
-    ''' An empty class object to store anything similar to the structure format
-    '''
-    pass
+if len(argv) != 3:
+    print(argv)
+    raise SystemExit("Usage: %s input_dir output_dir" % argv[0])
 
+root = argv[1] + '/'
 
-#_________________________________________________________________________
-## Choose which problem set to use -- 'Small', 'Middle' or 'Full'
-#
-#
-ProbSet = 'Small'
+ProbSet = None
+for size in 'Full', 'Middle', 'Small':
+    if size in root:
+        ProbSet = size
+if ProbSet is None:
+    raise SystemExit("unable to parse data subset name")
 
-
-#_________________________________________________________________________
-## ILI data files for training and testing
-#
-#
-
-# file that stores observed ILI rates in different regions, states and/or districts
-#data_root = '/home/syu/Work/ppaml/Ch7_Data/ProblemSubsets/'
-data_root = 'C:/Users/syu/project/1614/data/Ch7_Data/ppaml-cp7-datasets/'
-if ProbSet is 'Small':
-    root = data_root + 'Small/input/'
-elif ProbSet is 'Middle':
-    root = data_root + 'Middle/input/'
-elif ProbSet is 'Full':
-    root = data_root + 'Full/input/'
-else:
-    raise SystemExit('No such problem set!')
-    
 # CDC ILI rates
 data_fn = root + 'Flu_ILI.csv'
 # ILI observation precisions
@@ -76,8 +60,7 @@ obserrTweet_fn = None # None if a fixed tweet error distribution is selected a p
 #
 #
 
-result_root = ""
-result_fn = result_root + "result.json"
+result_fn = argv[2] + "/result.json"
 
 
 # specify whether to use sparse matrix formulation
@@ -170,6 +153,10 @@ temporalGrid = num_weeks
 spatialGrid = len(CountyName)
 
 
+class Parameters(object):
+    ''' An empty class object to store anything similar to the structure format
+    '''
+    pass
 
 #_________________________________________________________________________
 # Define random effects terms for GLMM

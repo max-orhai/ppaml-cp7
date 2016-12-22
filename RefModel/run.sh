@@ -13,7 +13,7 @@ if [ ! -d "$4" ]; then
     mkdir -p $4
 fi
 
-CMD="python FluTrackMain.py $1 $2 $3 $4 2>&1 | tee $4/run.log"
+CMD="python FluTrackMain_TwObs.py $2 $3 2>&1 | tee $4/run.log"
 echo $CMD
 $CMD
 

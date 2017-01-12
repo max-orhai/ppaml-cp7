@@ -9,8 +9,6 @@ import simplejson as json
 from collections import OrderedDict
 import numpy as np
 import scipy.sparse as spa
-import matplotlib.pyplot as plt
-import matplotlib
 from datetime import datetime
 import scipy.special
 
@@ -26,7 +24,7 @@ import ConstructMmentMatrix as CM
 # To generate covariates based on vaccination & tweet data in JSON
 import DefineCovariates as DC
 
-if len(argv) != 3:
+if len(argv) < 3:
     print(argv)
     raise SystemExit("Usage: %s input_dir output_dir" % argv[0])
 
@@ -355,8 +353,9 @@ UpdateParams.Thinning = 1 # thining the number of epochs to be stored
 # None: start from scratch, and store the results in 'samples.pkl'
 # 'xxxx.pkl': a pickle file that stores previous results from which to continue MCMC sampling
 # 'donot store': don't store any results in a file
-UpdateParams.SessionDatabaseFile = 'flu_est.pkl'
-#UpdateParams.SessionDatabaseFile = None
+
+# UpdateParams.SessionDatabaseFile = 'flu_est.pkl'
+UpdateParams.SessionDatabaseFile = None
 #UpdateParams.SessionDatabaseFile = 'donot store'
 
 
@@ -394,223 +393,4 @@ if SAVERESULT:
     #SaveSmpl.SaveSmpl(100.*np.mean(a.Result['Predictor'][:,:,0],axis=0), result_fn, CountyName, start_date, end_date)
     SaveSmpl.SaveSmpl(100.*scipy.special.expit(np.mean(a.Result['Predictor'][:,:,0],axis=0)), result_fn, CountyName, start_date, end_date)
 
-
-
-#_________________________________________________________________________
-#
-# Produce plots and compare results
-
-
-cmap = matplotlib.cm.get_cmap(name='jet')
-cmap_hex = []
-for i in range(cmap.N):
-    cmap_hex.append(matplotlib.colors.rgb2hex(cmap(i)[:3]))
-#cmap_hex.pop(-1)
-
-# inspect on a map
-INSPECT = 0
-if INSPECT:
-    from Twitter import plotCountyData
-    # map file
-    root = 'C:/Users/syu/project/1614/data/Misc/'
-    map_file = root + 'USA_Counties_with_FIPS_and_names.svg'
-    #map_file = root + 'Mississippi_Counties.svg'
-    
-    num_counties = len(CountyName.keys()) # total number of counties
-    data = {}
-    
-    # choose the week to plot
-    wk_plt = datetime.strptime("12/14/2013", '%m/%d/%Y')    
-    wk = int((wk_plt-earliest).days / 7) # weeks since the earliest date
-    var = 1 # the particular variable to show
-    for name in CountyName.keys():
-        fips = CountyName[name][1] # county FIPS code
-        #data[fips] = Covariates[num_counties*wk+CountyName[name][0],var]
-        #data[fips] = a.Result['Predictor'][-1,num_counties*wk+CountyName[name][0],0]
-        data[fips] = scipy.special.expit(np.mean(a.Result['Predictor'][:,num_counties*wk+CountyName[name][0],0],
-                            axis=0))
-    
-    #plotCountyData.plotCountyData(data, map_file, 'test.svg', min_val=-5., max_val=5.0)
-    plotCountyData.plotCountyData(data, map_file, 'test.svg')
-    
-    # Show truth data that is available
-    '''
-    #  The same truth data at a larger area is assisgn to all counties within the area
-    data_true = CM.AssignSameValue2FinerRes(true_data_fn, map_fn, CountyName,
-                                            (earliest, latest), region2avoid=Region2Avoid)
-                                            
-    for name in CountyName.keys():
-        fips = CountyName[name][1] # county FIPS code
-        #data[fips] = Covariates[num_counties*wk+CountyName[name][0],var]
-        data[fips] = data_true[num_counties*wk+CountyName[name][0],0]
-
-    #plotCountyData.plotCountyData(data, map_file, 'test_true.svg', colors=cmap_hex)
-    plotCountyData.plotCountyData(data, map_file, 'test_true.svg')
-    '''
-    '''
-    min_frac = 0.
-    max_frac = 0.15
-    # choose the week to plot
-    wk_plt = datetime.strptime("10/1/2013", '%m/%d/%Y')    
-    wk = int((wk_plt-earliest).days / 7) # weeks since the earliest date
-    var = 1 # the particular variable to show
-    for name in CountyName.keys():
-        fips = CountyName[name][1] # county FIPS code
-        #data[fips] = Covariates[num_counties*wk+CountyName[name][0],var]
-        #data[fips] = a.Result['Predictor'][-1,num_counties*wk+CountyName[name][0],0]
-        data[fips] = np.mean(a.Result['Predictor'][:,num_counties*wk+CountyName[name][0],0],
-                            axis=0)
-    
-    plotCountyData.plotCountyData(data, map_file, 'test10.svg', min_val=min_frac, max_val=max_frac)
-    #plotCountyData.plotCountyData(data, map_file, 'test10.svg')
-
-
-    # choose the week to plot
-    wk_plt = datetime.strptime("11/1/2013", '%m/%d/%Y')    
-    wk = int((wk_plt-earliest).days / 7) # weeks since the earliest date
-    var = 1 # the particular variable to show
-    for name in CountyName.keys():
-        fips = CountyName[name][1] # county FIPS code
-        #data[fips] = Covariates[num_counties*wk+CountyName[name][0],var]
-        #data[fips] = a.Result['Predictor'][-1,num_counties*wk+CountyName[name][0],0]
-        data[fips] = np.mean(a.Result['Predictor'][:,num_counties*wk+CountyName[name][0],0],
-                            axis=0)
-    
-    plotCountyData.plotCountyData(data, map_file, 'test11.svg', min_val=min_frac, max_val=max_frac)
-    #plotCountyData.plotCountyData(data, map_file, 'test11.svg')
-
-
-    # choose the week to plot
-    wk_plt = datetime.strptime("12/1/2013", '%m/%d/%Y')    
-    wk = int((wk_plt-earliest).days / 7) # weeks since the earliest date
-    var = 1 # the particular variable to show
-    for name in CountyName.keys():
-        fips = CountyName[name][1] # county FIPS code
-        #data[fips] = Covariates[num_counties*wk+CountyName[name][0],var]
-        #data[fips] = a.Result['Predictor'][-1,num_counties*wk+CountyName[name][0],0]
-        data[fips] = np.mean(a.Result['Predictor'][:,num_counties*wk+CountyName[name][0],0],
-                            axis=0)
-    
-    plotCountyData.plotCountyData(data, map_file, 'test12.svg', min_val=min_frac, max_val=max_frac)
-    #plotCountyData.plotCountyData(data, map_file, 'test12.svg')
-
-    # choose the week to plot
-    wk_plt = datetime.strptime("1/1/2014", '%m/%d/%Y')    
-    wk = int((wk_plt-earliest).days / 7) # weeks since the earliest date
-    var = 1 # the particular variable to show
-    for name in CountyName.keys():
-        fips = CountyName[name][1] # county FIPS code
-        #data[fips] = Covariates[num_counties*wk+CountyName[name][0],var]
-        #data[fips] = a.Result['Predictor'][-1,num_counties*wk+CountyName[name][0],0]
-        data[fips] = np.mean(a.Result['Predictor'][:,num_counties*wk+CountyName[name][0],0],
-                            axis=0)
-    
-    plotCountyData.plotCountyData(data, map_file, 'test01.svg', min_val=min_frac, max_val=max_frac)
-    #plotCountyData.plotCountyData(data, map_file, 'test01.svg')
-
-    # choose the week to plot
-    wk_plt = datetime.strptime("2/1/2014", '%m/%d/%Y')    
-    wk = int((wk_plt-earliest).days / 7) # weeks since the earliest date
-    var = 1 # the particular variable to show
-    for name in CountyName.keys():
-        fips = CountyName[name][1] # county FIPS code
-        #data[fips] = Covariates[num_counties*wk+CountyName[name][0],var]
-        #data[fips] = a.Result['Predictor'][-1,num_counties*wk+CountyName[name][0],0]
-        data[fips] = np.mean(a.Result['Predictor'][:,num_counties*wk+CountyName[name][0],0],
-                            axis=0)
-    
-    plotCountyData.plotCountyData(data, map_file, 'test02.svg', min_val=min_frac, max_val=max_frac)
-    #plotCountyData.plotCountyData(data, map_file, 'test02.svg')
-
-    # choose the week to plot
-    wk_plt = datetime.strptime("3/1/2014", '%m/%d/%Y')    
-    wk = int((wk_plt-earliest).days / 7) # weeks since the earliest date
-    var = 1 # the particular variable to show
-    for name in CountyName.keys():
-        fips = CountyName[name][1] # county FIPS code
-        #data[fips] = Covariates[num_counties*wk+CountyName[name][0],var]
-        #data[fips] = a.Result['Predictor'][-1,num_counties*wk+CountyName[name][0],0]
-        data[fips] = np.mean(a.Result['Predictor'][:,num_counties*wk+CountyName[name][0],0],
-                            axis=0)
-    
-    plotCountyData.plotCountyData(data, map_file, 'test03.svg', min_val=min_frac, max_val=max_frac)
-    #plotCountyData.plotCountyData(data, map_file, 'test03.svg')
-
-    # choose the week to plot
-    wk_plt = datetime.strptime("4/1/2014", '%m/%d/%Y')    
-    wk = int((wk_plt-earliest).days / 7) # weeks since the earliest date
-    var = 1 # the particular variable to show
-    for name in CountyName.keys():
-        fips = CountyName[name][1] # county FIPS code
-        #data[fips] = Covariates[num_counties*wk+CountyName[name][0],var]
-        #data[fips] = a.Result['Predictor'][-1,num_counties*wk+CountyName[name][0],0]
-        data[fips] = np.mean(a.Result['Predictor'][:,num_counties*wk+CountyName[name][0],0],
-                            axis=0)
-    
-    plotCountyData.plotCountyData(data, map_file, 'test04.svg', min_val=min_frac, max_val=max_frac)
-    #plotCountyData.plotCountyData(data, map_file, 'test04.svg')
-
-
-    # choose the week to plot
-    wk_plt = datetime.strptime("5/1/2014", '%m/%d/%Y')    
-    wk = int((wk_plt-earliest).days / 7) # weeks since the earliest date
-    var = 1 # the particular variable to show
-    for name in CountyName.keys():
-        fips = CountyName[name][1] # county FIPS code
-        #data[fips] = Covariates[num_counties*wk+CountyName[name][0],var]
-        #data[fips] = a.Result['Predictor'][-1,num_counties*wk+CountyName[name][0],0]
-        data[fips] = np.mean(a.Result['Predictor'][:,num_counties*wk+CountyName[name][0],0],
-                            axis=0)
-    
-    plotCountyData.plotCountyData(data, map_file, 'test05.svg', min_val=min_frac, max_val=max_frac)
-    #plotCountyData.plotCountyData(data, map_file, 'test05.svg')
-    '''
-# compare inferred ILI rates with truths
-VERIFY = 0
-if VERIFY:
-    # construct the measurement matrix that corresponds to the region/date to be inferred (i.e. NaN)
-    C_miss = CM.ConstructMissingMmentMatrix(data_fn, map_fn, CountyName,
-                                            (earliest, latest), CountyInfo=CntData,
-                                            region2avoid=Region2Avoid)
-
-    # read the truth data that corresponds to the inferred region/date 
-    '''
-    TrueMissingData, DateRegion = CM.ExtractTruthData(true_data_fn, data_fn,
-                                                      (earliest, latest), region2avoid=Region2Avoid)
-    '''
-    # infer missing data
-    # the MCMC sample to show (-1 == last sample)
-    #data_est = a.Result['Predictor'][-1,:,0][:,np.newaxis]
-    # mean MCMC samples
-    data_est = np.mean(a.Result['Predictor'][:,:,0],axis=0)[:,np.newaxis]
-    InferMissingData = C_miss * scipy.special.expit(data_est)
-    
-    # infer available (non-missing) data
-    InferAvailData = C_obs * scipy.special.expit(data_est)
-    
-    # inferred auxiliary observation
-    slope = np.mean(a.Result['obs_coef_10'])
-    intercept = np.mean(a.Result['obs_coef_11'])
-    AuxObsData = C_obsTw * np.exp(slope*data_est + intercept)
-    
-    
-    # plot missing data with truth data
-    '''
-    plt.figure(1)
-    plt.clf()
-    plt.plot(TrueMissingData,'b-o')
-    plt.plot(InferMissingData,'r-o')
-    '''
-    # plot available data with truth data
-    plt.figure(2)
-    plt.clf()
-    plt.plot(ObsData[0],'b-o')
-    plt.plot(InferAvailData,'r-o')
-    #plt.plot(C_obsTw*scipy.special.expit(data_est),'r-o')
-    
-    plt.figure(3)
-    plt.clf()
-    plt.plot(ObsData[1],'b-o')
-    plt.plot(AuxObsData, 'r-o')
-    
-    
+ 

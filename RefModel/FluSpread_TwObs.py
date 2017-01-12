@@ -7,8 +7,20 @@ import numpy as np
 import scipy.sparse as spa
 import scipy.special
 import scipy.stats
-import pymc
-import pymc.MCMC
+
+from pymc import (
+    beta_like,
+    database,
+    deterministic,
+    Gamma,
+    MAP,
+    MCMC,
+    Model,
+    Normal,
+    PyMCObjects,
+    stochastic,
+    truncated_normal_like,
+)
 
 from GaussianMRF import GaussianMRF
 
@@ -41,18 +53,18 @@ def LinearLinkBetaObs(Coefficients, Predictor=None, Observation=None, Draw=False
         if hasattr(Coefficients[0], "__len__"):
             if len(Coefficients) == 1:
                 # each observation has a different parameter value
-                loglike = np.sum([pymc.beta_like(Observation[ic,None], alpha[ic], beta[ic]) 
+                loglike = np.sum([beta_like(Observation[ic,None], alpha[ic], beta[ic]) 
                                     for ic in range(len(alpha))])
             else:
                 # some observations share the same PDF; this saves time
                 loglike = 0
                 for idx in range(len(Coefficients[1])):
                     obs_idx = Coefficients[1][idx]
-                    loglike = loglike + np.sum(pymc.beta_like(
+                    loglike = loglike + np.sum(beta_like(
                         Observation[obs_idx,None], alpha[obs_idx], beta[obs_idx]))
             return loglike
         else:
-            return pymc.beta_like(Observation[:,None], alpha, beta)
+            return beta_like(Observation[:,None], alpha, beta)
         
 def LinearLinkTruncatedNormalObs(Coefficients, Predictor=None, Observation=None, Draw=False, TruncRng=[0.,1.]):
     ''' Log-likelihood of observations with truncated normal noise and linear link
@@ -71,7 +83,7 @@ def LinearLinkTruncatedNormalObs(Coefficients, Predictor=None, Observation=None,
         if hasattr(Coefficients[0], "__len__"):
             if len(Coefficients) == 1:
                 # each observation has a different parameter value
-                loglike = np.sum([pymc.truncated_normal_like(
+                loglike = np.sum([truncated_normal_like(
                     Observation[ic,None], mu[ic], tau[ic], a=TruncRng[0], b=TruncRng[1]) 
                     for ic in range(len(mu))])
             else:
@@ -79,19 +91,19 @@ def LinearLinkTruncatedNormalObs(Coefficients, Predictor=None, Observation=None,
                 loglike = 0
                 for idx in range(len(Coefficients[1])):
                     obs_idx = Coefficients[1][idx]
-                    loglike = loglike + np.sum(pymc.truncated_normal_like(
+                    loglike = loglike + np.sum(truncated_normal_like(
                         Observation[obs_idx,None], mu[obs_idx], tau[obs_idx], a=TruncRng[0], b=TruncRng[1]))
             return loglike
         else:
-            return pymc.truncated_normal_like(Observation[:,None], mu, tau, a=TruncRng[0], b=TruncRng[1])
+            return truncated_normal_like(Observation[:,None], mu, tau, a=TruncRng[0], b=TruncRng[1])
     
     
 # a dictionary used to define the functions that are available for random-effects term
 RandomEffectsMethods = {"GaussianMRF": GaussianMRF}
 
 # distributions that can be used for PyMC models
-PyMC_Distributions = {"Gamma": pymc.Gamma,
-                      "Normal": pymc.Normal}        
+PyMC_Distributions = {"Gamma": Gamma,
+                      "Normal": Normal}        
 
 # link function and observation pair
 LinkFuncObs = {("log", "Poisson"): LogLinkPoissonObs,
@@ -186,13 +198,13 @@ class GLMM(object):
         fe_coef = list()
         if self._FixedEff_Param.FixedEffects.lower() == "estimated":
             # fixed-effects terms
-            fe_coef.append(pymc.Normal(
+            fe_coef.append(Normal(
                                 'fe_coef_0',
                                 mu=self._FixedEff_Param.Coeff_PriorMean[0],
                                 tau=self._FixedEff_Param.Coeff_PriorPrec[0],
                                 value=self._FixedEff_Param.Coeff_PriorMean[0]))            
             for i in range(1, self._FixedEff_Param.Coeff_PriorMean.size):
-                fe_coef.append(pymc.Normal(
+                fe_coef.append(Normal(
                     'fe_coef_%i' %i,
                     mu=self._FixedEff_Param.Coeff_PriorMean[i],
                     tau=self._FixedEff_Param.Coeff_PriorPrec[i],
@@ -210,7 +222,7 @@ class GLMM(object):
             # for each set of observation starting from the second set
             for j in range(2):
                 # for slope and intercept coefficients
-                obs_coef.append(pymc.Normal(
+                obs_coef.append(Normal(
                     'obs_coef_{0}{1}'.format(i, j),
                     mu = self._ObsCoef_Param[i].PriorMean[j],
                     tau= self._ObsCoef_Param[i].PriorPrec[j],
@@ -249,7 +261,7 @@ class GLMM(object):
         # Prepare all Random Effects Terms for PyMC
         RandomEffects = list()
         for i in range(len(self.GMRF)):
-            @pymc.stochastic(dtype=float)
+            @stochastic(dtype=float)
             def gmrf_spatial(value= InitialGMRF[i],
                              RandEff_Param = self._RandEff_Param[i],
                              PrecK = gmrf_prec[i],
@@ -281,7 +293,7 @@ class GLMM(object):
         #_________________________________________________________________________
         # Log odds at every node
 
-        @pymc.deterministic
+        @deterministic
         def Predictor(FixedEffectsCoeff = fe_coef,
                       RandomEffects = RandomEffects,
                       FixedEffectsCovariates = self._FixedEff_Param.Covariates):
@@ -313,7 +325,7 @@ class GLMM(object):
 
         # primary observations
         # Observed data
-        @pymc.stochastic(dtype=float, observed=True)
+        @stochastic(dtype=float, observed=True)
         def Observation(value=observations[0], Predictor=Predictor):
             ''' Given predictor output (fixed and random effects), calculate 
                 likelihood of the observation '''
@@ -335,7 +347,7 @@ class GLMM(object):
         # Auxiliary observations        
         ObsAux = list()
         for i in range(1,len(observations)):
-            @pymc.stochastic(dtype=float, observed=True)
+            @stochastic(dtype=float, observed=True)
             def ObservationAux(value=observations[i], Predictor=Predictor, ObsCoef=obs_coef):
                 def logp(value, Predictor, ObsCoef):
                     trns_predictor = self._LinkObs_Param[i].LinkCoef[0]*(
@@ -362,13 +374,13 @@ class GLMM(object):
         #_________________________________________________________________________
         # Prepare model for PyMC
         
-        #Model = pymc.Model({'RandomEffects': RandomEffects,
+        #Model = Model({'RandomEffects': RandomEffects,
         #                    'gmrf_prec': gmrf_prec,
         #                    'FixedEffects': fe_coef,
         #                    'Predictor': Predictor,
         #                    'Observation': CountData})
-        #Model = pymc.Model([RandomEffects, Predictor, Observation])
-        Model = pymc.Model(ModelDict)
+        #Model = Model([RandomEffects, Predictor, Observation])
+        MyModel = Model(ModelDict)
             
 
         #_________________________________________________________________________
@@ -378,13 +390,13 @@ class GLMM(object):
             # MCMC sampling
             if UpdateParams.SessionDatabaseFile is None:
                 # create a new database file to store the results
-                PyMC_MCMC = pymc.MCMC([Model], db='pickle', dbname='samples.pkl')
+                PyMC_MCMC = MCMC([MyModel], db='pickle', dbname='samples.pkl')
                 PyMC_MCMC.sample(UpdateParams.NumSample, burn=UpdateParams.NumBurnIn,
                                  thin=UpdateParams.Thinning)
                 PyMC_MCMC.db.close()
             elif UpdateParams.SessionDatabaseFile.lower() == 'donot store':               
                 # do not store the resutls (keep in RAM only)
-                PyMC_MCMC = pymc.MCMC([Model])
+                PyMC_MCMC = MCMC([MyModel])
                 PyMC_MCMC.sample(UpdateParams.NumSample, burn=UpdateParams.NumBurnIn,
                                  thin=UpdateParams.Thinning)
             else:
@@ -392,11 +404,11 @@ class GLMM(object):
                 # It also initializes all variables in MCMC so that the run is 
                 # equivalent to continuation of the chains stored in the database.
                 try:
-                    db = pymc.database.pickle.load(UpdateParams.SessionDatabaseFile)
-                    PyMC_MCMC = pymc.MCMC([Model], db=db)
+                    db = database.pickle.load(UpdateParams.SessionDatabaseFile)
+                    PyMC_MCMC = MCMC([MyModel], db=db)
                     print 'here'
                 except:
-                    PyMC_MCMC = pymc.MCMC([Model], db='pickle', dbname=UpdateParams.SessionDatabaseFile)
+                    PyMC_MCMC = MCMC([MyModel], db='pickle', dbname=UpdateParams.SessionDatabaseFile)
                     print 'there'
                 PyMC_MCMC.sample(UpdateParams.NumSample, burn=UpdateParams.NumBurnIn,
                                  thin=UpdateParams.Thinning)
@@ -417,7 +429,7 @@ class GLMM(object):
                     for i in range(len(val)):
                         # iterate through each variable in the model term (e.g. RandomEffects)
                         # val[i].__name__ is the actual name for each variable
-                        if isinstance(val[i], pymc.PyMCObjects.Stochastic):
+                        if isinstance(val[i], PyMCObjects.Stochastic):
                             if not val[i].observed:
                                 # only if it's not observed
                                 self.Result[val[i].__name__] = PyMC_MCMC.trace(val[i].__name__)[:]
@@ -430,7 +442,7 @@ class GLMM(object):
             #self.ModelDict = ModelDict            
         elif UpdateParams.Method == 'MAP':
             # maximum a posteriori
-            PyMC_MAP = pymc.MAP([Model])            
+            PyMC_MAP = MAP([Model])            
             PyMC_MAP.fit()
             self.Result['Predictor'] = PyMC_MAP('Predictor')[:]
         else:

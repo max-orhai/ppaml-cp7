@@ -131,7 +131,7 @@ m | team discretion
 Each forecast will be evaluated against ground truth data <nobr>{ _I<sub>pw</sub> | n ≤ w ≤ n + m_ }</nobr> and assigned a sum of squared errors (SSE) score _s_.
 Higher _m_ and lower _s_ are better.
 
-![Example forecast](example-forecast.pdf)
+![Example forecast](example-forecast.png)
 
 In chart above, _n_ = 2014.40, _m_ = 10, and _p_ = HHS Region 4.
 Three of the eight covariates are shown point-wise, in warm colors.

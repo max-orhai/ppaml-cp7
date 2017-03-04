@@ -3,7 +3,7 @@
 The task in this phase of CP7 is to predict [seasonal rates](https://en.wikipedia.org/wiki/Flu_season) of Influenza-Like Illness (_ILI_ or 'flu') in 60 distinct sub-populations of the continental US, ranging in size from the entire country to individual counties.
 
 In addition to historical ILI rate data for each population, three different forms of covariate data are provided for use in solutions.
-All four variables for the target season will be made available to solutions, one week at time, in a _simulated nowcast_ experiment.
+In a _simulated nowcast_ experiment, all four kinds of variables will be made available to solutions, one week at time, over the target season.
 
 ---
 
@@ -58,7 +58,7 @@ Variable name | populations | meaning
 `ltc` | NJ | percentage of ILI patients in long-term care facilities 
 `sch` | NJ | percentage of ILI patients in schools 
 `emr` | NJ | percentage of ILI patients in hospital emergency departments
-<nobr>`age[H]-[L]`</nobr> | RI, TX | percentage of ILI patients between ages _H_ and _L_, inclusive <br> ***note:** The TX health dept reported ages in four bins before week 2009.40, and five bins afterward. For those later weeks, column `TX.age25-64*` contains data for ages 25 – 49.
+<nobr>`age[H]-[L]`</nobr> | RI, TX | percentage of ILI patients between ages _H_ and _L_, inclusive <br> **note:** The TX health dept reported ages in four bins before week 2009.40, and five bins afterward. For those later weeks, column `TX.age25-64*` contains data for ages 25 – 49.
 
 
 ### Tweet counts
@@ -122,11 +122,11 @@ Denoting ILI rate data for population _p_ and week _w_ as _I<sub>pw</sub>_, and 
 
 Given data sets _I_ and _C_, as described above, solutions will produce a set of forecasts <nobr>{ _F<sub>p,n,m</sub>(I, C)_ }</nobr> where
 
-Parameter | range
+Parameter | value
 --------- | -----
-p | any of the 60 populations
-n | weeks 2015.30 ... 2016.20
-m | team discretion
+_p_ | any of the 60 populations
+_n_ | weeks 2015.30 ... 2016.20
+_m_ | team discretion1
 
 Each forecast will be evaluated against ground truth data <nobr>{ _I<sub>pw</sub> | n ≤ w ≤ n + m_ }</nobr> and assigned a sum of squared errors (SSE) score _s_.
 Higher _m_ and lower _s_ are better.

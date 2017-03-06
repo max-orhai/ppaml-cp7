@@ -81,7 +81,7 @@ Variable name | meaning
 ### Medicare vaccination claims
 
 Medicare recipients are eligible for subsidized flu vaccinations.
-The National Vaccine Program Office tracks the number of eligible recipients in two demographic categories for each county and flu season: those under age 65, and those 65 and older.
+The National Vaccine Program Office tracks the total number of eligible recipients for each county and flu season, for all ages as those 65 and older.
 The NVPO records the vaccinated percentage of those eligible on a weekly basis.
 These percentages are cumulative and thus non-decreasing over a flu season.
 
@@ -104,7 +104,7 @@ To encourage teams to explore this correlation, aggregated weather data are prov
 
 Filenames | source 
 --------- | ------
-<nobr>`[POP]-weather.csv`</nobr> | [NOAA GHCN-Daily](https://www.ncdc.noaa.gov/oa/climate/ghcn-daily/)
+<nobr>`[POP]-weather.csv`</nobr> | [National Oceanic and Atmospheric Administration _GHCN-Daily_](https://www.ncdc.noaa.gov/oa/climate/ghcn-daily/)
 
 Variable name | meaning
 ------------- | -------
@@ -143,5 +143,5 @@ This file will consist of concatenated CSV data of the same format as those prov
 The basic idea is that each line of data could be appended to the appropriate file to continue the time series.
 (An [example](data/week-2014.42.txt) is provided with data from the previous season, covering weeks 2014.41 and 2014.42.)
 
-Solutions should read such a file (as well as the contents of the present `data` directory) and produce a similar file, containing only _m_ lines (numbered _n_ through _n_ + _m_) for each forecast target population `[POP]-flu.csv`.
+Solutions should read such a file (as well as the contents of the present `data` directory) and produce a similar file, containing only lines with forecast ILI rates for weeks _n_ through _n_ + _m_ for each target population `[POP]-flu.csv`.
 To avoid re-computing a full predictive model for each week _n_, solutions are encouraged to save their results in between program runs.

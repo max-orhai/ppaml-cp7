@@ -2,7 +2,7 @@
 
 The task in this phase of CP7 is to predict [seasonal rates](https://en.wikipedia.org/wiki/Flu_season) of Influenza-Like Illness (_ILI_ or 'flu') in 60 distinct sub-populations of the continental US, ranging in size from the entire country to individual counties.
 
-In addition to historical ILI rate data for each population, three different forms of covariate data are provided for use in solutions.
+In addition to historical ILI rate data for each population, three different kinds of covariate data, representing flu-related tweets, vaccination claims, and weather, are provided for use in solutions.
 In a _simulated nowcast_ experiment, all four kinds of variables will be made available to solutions, one week at time, over the target season.
 
 ---
@@ -82,7 +82,7 @@ Variable name | meaning
 
 Medicare recipients are eligible for subsidized flu vaccinations.
 The National Vaccine Program Office tracks the number of eligible recipients in two demographic categories for each county and flu season: those under age 65, and those 65 and older.
-The NVPO records the vaccinated percentage of those eligible, on a weekly basis.
+The NVPO records the vaccinated percentage of those eligible on a weekly basis.
 These percentages are cumulative and thus non-decreasing over a flu season.
 
 Filenames | source 
@@ -120,15 +120,15 @@ Denoting ILI rate data for population _p_ and week _w_ as _I<sub>pw</sub>_, and 
 
  _F<sub>p,n,m</sub>_ : { _I<sub>pw</sub>_ , _C<sub>pw</sub>_ | _w_ < _n_ } → { _I<sub>pw</sub>_ | _n_ ≤ _w_ ≤ _n_ + _m_ }
 
-Given data sets _I_ and _C_, as described above, solutions will produce a set of forecasts <nobr>{ _F<sub>p,n,m</sub>(I, C)_ }</nobr> where
+Given data sets _I_ and _C_, as described above, solutions will produce a set of forecasts <nobr>{ _F<sub>p,n,m_</sub>(_I_, _C_) }</nobr> where
 
 Parameter | value
 --------- | -----
 _p_ | any of the 60 populations
 _n_ | weeks 2015.30 ... 2016.20
-_m_ | team discretion1
+_m_ | team discretion
 
-Each forecast will be evaluated against ground truth data <nobr>{ _I<sub>pw</sub> | n ≤ w ≤ n + m_ }</nobr> and assigned a sum of squared errors (SSE) score _s_.
+Each forecast will be evaluated against ground truth data <nobr>{ _I<sub>pw</sub>_ | _n_ ≤ _w_ ≤ _n_ + _m_ }</nobr> and assigned a sum of squared errors (SSE) score _s_.
 Higher _m_ and lower _s_ are better.
 
 ![Example forecast](example-forecast.png)

@@ -16,7 +16,7 @@ could potentially fall into MMWR week #1 of the following MMWR year."""
 # ...since the epi week calendar is identical to the ISO week calendar,
 # except that the epi week starts on a Sunday.
 
-from datetime import date
+from datetime import datetime, date, timedelta
 
 # date.weekday()
 # Su Mo Tu We Th Fr Sa Su
@@ -40,8 +40,29 @@ def epiweek(d):  # consumes a datetime.date() object
     return week, d.year
 
 
+# the last date (a Saturday) in given MMWR week
+def last_date(wk, year):
+    jan1 = date(year, 1, 1)
+    wday = (1 + jan1.weekday()) % 7
+    wk1d6 = jan1 + timedelta(days=6 if wday > 4 else -1)
+    return wk1d6 + timedelta(days=7 * wk)
+
+
 def ew(y, m, d):
     return epiweek(date(y, m, d))
+
+
+# convert 'YYYY.WW' week notation to and from 'YYYY-MM-DD' dates:
+
+def dt2ew(date_str):
+    dt = datetime.strptime(date_str, '%Y-%m-%d').date()
+    wk, yr = epiweek(dt)
+    return '{}.{:02}'.format(yr, wk)
+
+
+def ew2dt(ew_str):
+    yr, wk = ew_str.split('.')
+    return last_date(int(wk), int(yr)).strftime('%Y-%m-%d')
 
 
 def test_epiweek():

@@ -2,7 +2,6 @@
 
 import argparse
 import csv
-import matplotlib.pyplot as plt
 
 
 def sse(xys):
@@ -46,18 +45,25 @@ if __name__ == '__main__':
     line_count = 0
     for ((target_week, _), (reference_week, _)) in data:
         line_count += 1
-        err_msg = 'data lines {}: {} != {}'.format(line_count, target_week, reference_week)
+        err_msg = 'data lines {}: {} != {}'.format(
+            line_count, target_week, reference_week)
         assert target_week == reference_week, err_msg
 
     score = sse([(float(t), float(r)) for ((_, t), (_, r)) in data])
-    print('Sum of squared errors: {} over {} weeks'.format(score, len(data)))
+    result = 'Sum of squared errors: {} over {} weeks'.format(score, len(data))
 
     if args.plot:
+        import matplotlib.pyplot as plt
         weeks = [w for ((w, _), _) in data]
         ref_vals = [r for (_, (_, r)) in data]
         target_vals = [t for ((_, t), _) in data]
+        plt.xlabel('Weeks')
+        plt.ylabel('% ILI')
+        plt.title(result)
         plt.plot(ref_vals, label=args.reference)
         plt.plot(target_vals, label=args.target, alpha=0.6)
         plt.xticks([0, len(weeks) - 1], [weeks[0], weeks[-1]])
         plt.legend(loc='upper left', frameon=False)
         plt.show()
+    else:
+        print(result)

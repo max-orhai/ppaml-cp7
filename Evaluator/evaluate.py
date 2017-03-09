@@ -29,11 +29,11 @@ if __name__ == '__main__':
 
     with open(args.target) as target_file:
         if week_col == 0:
-            target_file.next()  # throw away header
+            target_file.readline()  # throw away header
         target = [row for row in reader(target_file)]
     with open(args.reference) as reference_file:
         if week_col == 0:
-            reference_file.next()
+            reference_file.readline()
         reference = [row for row in reader(reference_file)]
 
     target_data = [(row[week_col], row[column]) for row in target]
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     err_msg = '{} != {}'.format(len(target_data), len(reference_data))
     assert len(target_data) == len(reference_data), err_msg
 
-    data = zip(target_data, reference_data)
+    data = [z for z in zip(target_data, reference_data)]
     line_count = 0
     for ((target_week, _), (reference_week, _)) in data:
         line_count += 1
@@ -50,7 +50,7 @@ if __name__ == '__main__':
         assert target_week == reference_week, err_msg
 
     score = sse([(float(t), float(r)) for ((_, t), (_, r)) in data])
-    result = 'Sum of squared errors: {} over {} weeks'.format(score, len(data))
+    result = 'Sum of squared errors: {:.02f} over {} weeks'.format(score, len(data))
 
     if args.plot:
         import matplotlib.pyplot as plt

@@ -133,7 +133,7 @@ Variable name | meaning
 
 Denoting ILI rate data for population _p_ and week _w_ as _I<sub>pw</sub>_, and similarly for all covariates _C_, a _forecaster_ for week _n_ extending _m_ weeks can be described as a function
 
- _F<sub>p,n,m</sub>_ : { _I<sub>p(w-1)</sub>_ , _C<sub>pw</sub>_ | _w_ < _n_ } → { _I<sub>pw</sub>_ | _n_ ≤ _w_ ≤ _n_ + _m_ }
+ _F<sub>p,n,m</sub>_ : { _I<sub>p(w-2)</sub>_ , _C<sub>pw</sub>_ | _w_ < _n_ } → { _I<sub>pw</sub>_ | _n_ ≤ _w_ ≤ _n_ + _m_ }
 
 Given data sets _I_ and _C_, as described above, solutions will produce a set of forecasts <nobr>{ _F<sub>p,n,m_</sub>(_I_, _C_) }</nobr> where
 
@@ -141,10 +141,11 @@ Parameter | value
 --------- | -----
 _p_ | teams may choose any of the 60 populations, but _must include_ <br> **HHS Region 4, TN state, and Knox County** (TN.D10 = FIPS 47093)
 _n_ | each of the weeks 2015.40 ... 2016.20
-_m_ | 1 ... remaining weeks in target season, at team discretion
+_m_ | 0 ... remaining weeks in target season, at team discretion
 
 Each forecast will be evaluated against ground truth data <nobr>{ _I<sub>pw</sub>_ | _n_ ≤ _w_ ≤ _n_ + _m_ }</nobr> and assigned a sum of squared errors (SSE) score _s_.
-Higher _m_ and lower _s_ are better: the metric _s/m_ will be used for comparison between solution results with different _m_ values.
+Higher _m_ and lower _s_ are better: the metric _s/m_ will be used for comparison between solution results with different (non-zero) _m_ values.
+If _m_ = 0 the problem is a simulated _nowcast_ rather than a forecast: the goal is to infer "current" ILI rates in the target populations, as of week _n_, from both current and historical covariate data as well as historical ILI data up to two weeks previous.
 
 ![Example forecast](example-forecast.png)
 
@@ -158,11 +159,11 @@ For evaluation, solutions will target the flu season beginning in week 2015.40, 
 
 ## Evaluation protocol
 
-In concrete terms, ILI rates _I<sub>p(w-1)</sub>_ and covariates _C<sub>pw</sub>_ for all 60 populations _p_ and weeks _w_, 2015.20 < _w_ ≤ _n_ ≤ 2016.20, will be represented in a single file named `week-`_n_`.txt`.
+In concrete terms, ILI rates _I<sub>p(w-2)</sub>_ and covariates _C<sub>pw</sub>_ for all 60 populations _p_ and weeks _w_, 2015.20 < _w_ ≤ _n_ ≤ 2016.20, will be represented in a single file named `week-`_n_`.txt`.
 This file will consist of concatenated CSV data of the same format as those provided, preceded by filenames, and followed by blank lines.
 The basic idea is that each line of data could be appended to the appropriate CSV to continue the time series.
 An [example file](data/week-2014.42.txt) is provided with data from the 2014–2015 season, covering weeks 2014.21 through 2014.42.
-Because the CDC and health departments only publish ILI rates after a two-week delay, while data from other sources are available sooner, `week-`_n_`.txt` will contain data from the end of the season up to and including week _n_ for tweets, weather, and vaccination variables, but **only** up to week _n_ - 1 for ILI variables.
+Because the CDC and health departments only publish ILI rates after a two-week delay, while data from other sources are available sooner, `week-`_n_`.txt` will contain data from the end of the season up to and including week _n_ for tweets, weather, and vaccination variables, but **only** up to week _n_ - 2 for ILI variables.
 
 For each evaluation week _n_, 2015.40 ≤ _n_ ≤ 2016.20, solutions should read the `week-`_n_`.txt` file (as well as the contents of the present `data` directory) and produce a similar file `forecast-`_n_`.txt`, containing only lines with forecast ILI rates for weeks _n_ through _n_ + _m_ for each target population `[POP]-flu.csv`.
 

@@ -133,7 +133,7 @@ Variable name | meaning
 
 Denoting ILI rate data for population _p_ and week _w_ as _I<sub>pw</sub>_, and similarly for all covariates _C_, a _forecaster_ for week _n_ extending _m_ weeks can be described as a function
 
- _F<sub>p,n,m</sub>_ : { _I<sub>p(w-2)</sub>_ , _C<sub>pw</sub>_ | _w_ < _n_ } → { _I<sub>pw</sub>_ | _n_ ≤ _w_ ≤ _n_ + _m_ }
+ _F<sub>p,n,m</sub>_ : { _I<sub>p(w-2)</sub>_ , _C<sub>pw</sub>_ | _w_ ≤ _n_ ;∀ _p_ } → { _I<sub>pw</sub>_ | _n_ ≤ _w_ ≤ _n_ + _m_ }
 
 Given data sets _I_ and _C_, as described above, solutions will produce a set of forecasts <nobr>{ _F<sub>p,n,m_</sub>(_I_, _C_) }</nobr> where
 
@@ -163,7 +163,7 @@ In concrete terms, ILI rates _I<sub>p(w-2)</sub>_ and covariates _C<sub>pw</sub>
 This file will consist of concatenated CSV data of the same format as those provided, preceded by filenames, and followed by blank lines.
 The basic idea is that each line of data could be appended to the appropriate CSV to continue the time series.
 An [example file](data/week-2014.42.txt) is provided with data from the 2014–2015 season, covering weeks 2014.21 through 2014.42.
-Because the CDC and health departments only publish ILI rates after a two-week delay, while data from other sources are available sooner, `week-`_n_`.txt` will contain data from the end of the season up to and including week _n_ for tweets, weather, and vaccination variables, but **only** up to week _n_ - 2 for ILI variables.
+Because the CDC and health departments only publish ILI rates after a two-week delay, while data from other sources are available sooner, `week-`_n_`.txt` will contain data from the start of the season up to and including week _n_ for tweets, weather, and vaccination variables, but **only** up to week _n_ - 2 for ILI variables.
 
 For each evaluation week _n_, 2015.40 ≤ _n_ ≤ 2016.20, solutions should read the `week-`_n_`.txt` file (as well as the contents of the present `data` directory) and produce a similar file `forecast-`_n_`.txt`, containing only lines with forecast ILI rates for weeks _n_ through _n_ + _m_ for each target population `[POP]-flu.csv`.
 

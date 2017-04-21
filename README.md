@@ -131,7 +131,7 @@ Variable name | meaning
 
 ## Problem statement
 
-Denoting ILI rate data for population _p_ and week _w_ as _I<sub>pw</sub>_, and similarly for all covariates _C_, a _forecaster_ for week _n_ extending _m_ weeks can be described as a function
+Denoting ILI rate data for population _p_ and week _w_ as _I<sub>pw</sub>_, and similarly for all covariates _C_, a _forecaster_ for week _n_ extending _m_ weeks forward can be described as a function
 
  _F<sub>p,n,m</sub>_ : { _I<sub>p(w-2)</sub>_ , _C<sub>pw</sub>_ | _w_ ≤ _n_ ;∀ _p_ } → { _I<sub>pw</sub>_ | _n_ ≤ _w_ ≤ _n_ + _m_ }
 
@@ -141,11 +141,14 @@ Parameter | value
 --------- | -----
 _p_ | teams may choose any of the 60 populations, but _must include_ <br> **HHS Region 4, TN state, and Knox County** (TN.D10 = FIPS 47093)
 _n_ | each of the weeks 2015.40 ... 2016.20
-_m_ | 0 ... remaining weeks in target season, at team discretion
+_m_ | 0 ... remaining weeks in target season
 
-Each forecast will be evaluated against ground truth data <nobr>{ _I<sub>pw</sub>_ | _n_ ≤ _w_ ≤ _n_ + _m_ }</nobr> and assigned a sum of squared errors (SSE) score _s_.
-Higher _m_ and lower _s_ are better: the metric _s/m_ will be used for comparison between solution results with different (non-zero) _m_ values.
-If _m_ = 0 the problem is a simulated _nowcast_ rather than a forecast: the goal is to infer "current" ILI rates in the target populations, as of week _n_, from both current and historical covariate data as well as historical ILI data up to two weeks previous.
+Solutions may use both _I_ and _C_ data from any of the given populations to predict ILI rates for a specific population _p_. 
+We are interested in how prediction accuracy for a given forecast period improves throughout the season, as new data is made available.
+
+Each forecast will be evaluated against ground truth data <nobr>{ _I<sub>pw</sub>_ | _n_ ≤ _w_ ≤ _n_ + _m_ }</nobr> and assigned a sum of squared errors (SSE) score _s_ for each successive forecast period (week _n_, weeks _n_ through _n_ + 1, ... , weeks _n_ through _n_ + _m_).
+
+Note that if _m_ = 0 then the problem is a simulated _nowcast_ rather than a forecast: the goal is to infer "current" ILI rates in the target populations, as of week _n_, from both current and historical covariate data as well as historical ILI data up to two weeks previous.
 
 ![Example forecast](example-forecast.png)
 

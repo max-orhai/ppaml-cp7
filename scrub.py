@@ -41,7 +41,21 @@ def make_example(dirname):
                 print('')
 
 
+def check_for_dupes(dirname):
+    for filename in listdir(dirname):
+        if filename[0].isupper():
+            weeks = set()
+            with open(dirname + filename) as file:
+                for line in file:
+                    week = line.split(',', 1)[0]
+                    if week in weeks:
+                        print(filename + ": " + week)
+                    else:
+                        weeks.add(week)
+
+
 if __name__ == '__main__':
     # trim()
     # rm_empty(argv[1])
-    make_example(argv[1])
+    # make_example(argv[1])
+    check_for_dupes(argv[1])

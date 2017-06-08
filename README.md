@@ -171,8 +171,8 @@ Because the CDC and health departments only publish ILI rates after a two-week d
 For each evaluation week _n_, 2015.40 ≤ _n_ ≤ 2016.20, solutions should read the `week-`_n_`.txt` file (as well as the contents of the present `data` directory) and produce a similar file `forecast-`_n_`.txt`, containing only lines with forecast ILI rates for weeks _n_ through _n_ + _m_ for each target population `[POP]-flu.csv`.
 
 Note that the first evaluation data file, `week-2015.40.txt`, will include off-season baseline data for the 20 weeks 2015.21 through 2015.40, for all populations and covariates where this off-season data is available.
-It will only contain 19 weeks of data for ILI variables.
-The second evaluation file, `week-2015.41.txt`, will have covariate data for 21 weeks; the third for 22 weeks, and so on.
+It will contain at most 18 weeks of data for ILI variables in the populations (TN, TX, and USA) which report off-season ILI rates, and less in the other populations, which do not.
+The second evaluation file, `week-2015.41.txt`, will have covariate data for 21 weeks (and ILI data for 19); the third for 22 weeks, and so on.
 
 A solution should present a command line interface in the form of a shell script with arguments:
 

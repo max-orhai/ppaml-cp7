@@ -11,9 +11,9 @@ pcs = [k for k in [
        ] if k[0] in data[0]]
 name = argv[1].split('/')[-1].split('.')[0]
 
-plt.title('"${}$" model forecasts'.format(name))
-plt.xlabel('Weeks ahead')
-plt.ylabel('%ILI Mean squared error')
+plt.title('${}$ model forecast accuracy'.format(name))
+plt.xlabel('weeks ahead')
+plt.ylabel('%ILI mean squared error')
 plt.xticks(range(len(data) + 1))
 for (p, c) in pcs:
     plt.plot([d[p] for d in data], ':s', label=p, c=c, alpha=0.6)

@@ -22,6 +22,7 @@ for (pop, c) in pop_cs:
 pw = fc[0]['Week']
 offset = [d['Week'] for d in gt].index(pw)
 
+# plt.ylim(-2, 7)  # for linxtrp, too jumpy otherwise!
 plt.vlines(offset, 0, 5, alpha=0.2, linestyles='dotted')
 
 for (pop, c) in pop_cs:

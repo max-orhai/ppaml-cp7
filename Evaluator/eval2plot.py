@@ -3,13 +3,19 @@ from csv import DictReader
 import matplotlib.pyplot as plt
 
 data = [d for d in DictReader(open(argv[1]))]
-keyorder = [k for k in ('USA', 'R04', 'TN', 'D10') if k in data[0]]
+pcs = [k for k in [
+       ('USA', 'b'),
+       ('R04', 'g'),
+       ('TN', 'y'),
+       ('D10', 'r'),
+       ] if k[0] in data[0]]
 name = argv[1].split('/')[-1].split('.')[0]
 
-plt.title('Mean squared error of "${}$" model forecasts'.format(name))
+plt.title('"${}$" model forecasts'.format(name))
 plt.xlabel('Weeks ahead')
+plt.ylabel('%ILI Mean squared error')
 plt.xticks(range(len(data) + 1))
-for k in keyorder:
-    plt.plot([d[k] for d in data], ':s', label=k)
+for (p, c) in pcs:
+    plt.plot([d[p] for d in data], ':s', label=p, c=c, alpha=0.6)
 plt.legend()
-plt.show()
+plt.savefig('results/' + name + '.png', dpi=150)

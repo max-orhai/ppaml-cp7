@@ -50,44 +50,66 @@ Forecast accuracy was evaluated for each model, and for each of these five weeks
 | Entire continental US | HHS Region 4 (Southeast US) | Tennessee state | Knox county, TN
 
 ---
+
 ### MIT *per* model
 (Only evaluated in Region 4)
-![per forecast animation](results/per.gif)
-![per MSE](results/per.png)
+
+| forecasts | accuracy |
+| --------- | -------- |
+| ![per forecast animation](results/per.gif) | ![per MSE](results/per.png) |
 
 ---
+
 ### MIT *se* model
 (The team's preferred solution)
-![se forecast animation](results/se.gif)
-![se MSE](results/se.png)
+
+| forecasts | accuracy |
+| --------- | -------- |
+| ![se forecast animation](results/se.gif) | ![se MSE](results/se.png) |
 
 ---
+
 ### MIT *crosscatts* model
 (Not evaluated in *USA* population)
-![crosscatts forecast animation](results/crosscatts.gif)
-![crosscatts MSE](results/crosscatts.png)
+
+| forecasts | accuracy |
+| --------- | -------- |
+| ![crosscatts forecast animation](results/crosscatts.gif) | ![crosscatts MSE](results/crosscatts.png) |
 
 ---
+
 ### MIT *dsm* model
 (Not evaluated in *USA* population)
-![dsm forecast animation](results/dsm.gif)
-![dsm MSE](results/dsm.png)
+
+| forecasts | accuracy |
+| --------- | -------- |
+| ![dsm forecast animation](results/dsm.gif) | ![dsm MSE](results/dsm.png) |
+
+---
 
 ### *fbprophet* model
 (Negative rates in the smaller populations may be due to very wide confidence intervals)
-![fbprophet forecast animation](results/fbprophet.gif)
-![fbprophet MSE](results/fbprophet.png)
+
+| forecasts | accuracy |
+| --------- | -------- |
+| ![fbprophet forecast animation](results/fbprophet.gif) | ![fbprophet MSE](results/fbprophet.png) |
 
 ---
+
 ### *constant* model
-![constant forecast animation](results/constant.gif)
-![constant MSE](results/constant.png)
+
+| forecasts | accuracy |
+| --------- | -------- |
+| ![constant forecast animation](results/constant.gif) | ![constant MSE](results/constant.png) |
 
 ---
+
 ### *linxtrp* model
 (Badly affected by noise in the smaller populations!)
-![linxtrp forecast animation](results/linxtrp.gif)
-![linxtrp MSE](results/linxtrp.png)
+
+| forecasts | accuracy |
+| --------- | -------- |
+| ![linxtrp forecast animation](results/linxtrp.gif) | ![linxtrp MSE](results/linxtrp.png) |
 
 
 ## Model comparisons

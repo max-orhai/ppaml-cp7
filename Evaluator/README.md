@@ -1,8 +1,5 @@
 # CP7 results to date (26 July 2017)
 
-[(Problem statement and data set)](https://github.com/GaloisInc/ppaml-cp7/tree/2e2d30f92ab6560cf61b4eef1989c519e40257c0)
-
-
 ## The solutions
 
 Galois has received two sets of CP7 solutions from MIT.

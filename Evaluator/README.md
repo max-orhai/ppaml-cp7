@@ -58,6 +58,9 @@ Forecast accuracy was evaluated for each model, and for each of these five weeks
 | --------- | -------- |
 | ![per forecast animation](results/per.gif) | ![per MSE](results/per.png) |
 
+Although *per* appears to perform quite well for Region 4 in the 2015-2016 flu season (despite missing the gap between the double peaks), this particular target season happens to be of average timing and magnitude.
+Both of these quantities vary considerably between seasons, but the model forecasts approximately the same time series for each season, and does not respond to new data as the season progresses.
+
 ---
 
 ### MIT *se* model

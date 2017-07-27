@@ -8,10 +8,10 @@ from os import listdir
 assert len(argv) == 3, 'usage: eval2.py [forecast dir] [reference CSV]'
 
 
-def mse(xys):
-    def sqerr((x, y)):
-        return (x - y) ** 2
-    return sum(map(sqerr, xys)) / len(xys)
+def mae(xys):
+    def abserr((x, y)):
+        return abs(x - y)
+    return sum(map(abserr, xys)) / len(xys)
 
 
 def table(filename):
@@ -51,7 +51,7 @@ for t in targets:
 
 for i in fcwd:
     for pop in fcwd[i]:
-        fcwd[i][pop] = round(mse(fcwd[i][pop]), 3)
+        fcwd[i][pop] = round(mae(fcwd[i][pop]), 3)
 
 ks = sorted(fcwd[0].keys())
 print(','.join(['WeeksAhead'] + ks))

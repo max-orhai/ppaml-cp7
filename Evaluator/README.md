@@ -54,71 +54,78 @@ Forecast accuracy was evaluated for each model, and for each of these five weeks
 
 ### MIT *per* model
 (Only evaluated in Region 4)
+[**CSV**](results/per.csv)
 
 | forecasts | accuracy |
 | --------- | -------- |
-| ![per forecast animation](results/per.gif) | ![per MSE](results/per.png) |
+| ![per forecast animation](results/per.gif) | ![per MAE](results/per.png) |
 
-Although *per* appears to perform quite well for Region 4 in the 2015-2016 flu season (despite missing the gap between the double peaks), this particular target season happens to be of average timing and magnitude.
+Although *per* appears to perform quite well for Region 4 in the 2015-2016 flu season (despite missing the gap between the double peaks), this particular target season's peak happens to be of average timing and magnitude.
 Both of these quantities vary considerably between seasons, but the model forecasts approximately the same time series for each season, and does not respond to new data as the season progresses.
 
 ---
 
 ### MIT *se* model
 (The team's preferred solution)
+[**CSV**](results/se.csv)
 
 | forecasts | accuracy |
 | --------- | -------- |
-| ![se forecast animation](results/se.gif) | ![se MSE](results/se.png) |
+| ![se forecast animation](results/se.gif) | ![se MAE](results/se.png) |
 
 ---
 
 ### MIT *crosscatts* model
 (Not evaluated in *USA* population)
+[**CSV**](results/crosscatts.csv)
 
 | forecasts | accuracy |
 | --------- | -------- |
-| ![crosscatts forecast animation](results/crosscatts.gif) | ![crosscatts MSE](results/crosscatts.png) |
+| ![crosscatts forecast animation](results/crosscatts.gif) | ![crosscatts MAE](results/crosscatts.png) |
 
 ---
 
 ### MIT *dsm* model
 (Not evaluated in *USA* population)
+[**CSV**](results/dsm.csv)
 
 | forecasts | accuracy |
 | --------- | -------- |
-| ![dsm forecast animation](results/dsm.gif) | ![dsm MSE](results/dsm.png) |
+| ![dsm forecast animation](results/dsm.gif) | ![dsm MAE](results/dsm.png) |
 
 ---
 
 ### *fbprophet* model
 (Negative rates in the smaller populations may be due to very wide confidence intervals)
+[**CSV**](results/fbprophet.csv)
 
 | forecasts | accuracy |
 | --------- | -------- |
-| ![fbprophet forecast animation](results/fbprophet.gif) | ![fbprophet MSE](results/fbprophet.png) |
+| ![fbprophet forecast animation](results/fbprophet.gif) | ![fbprophet MAE](results/fbprophet.png) |
 
 ---
 
 ### *constant* model
+[**CSV**](results/constant.csv)
 
 | forecasts | accuracy |
 | --------- | -------- |
-| ![constant forecast animation](results/constant.gif) | ![constant MSE](results/constant.png) |
+| ![constant forecast animation](results/constant.gif) | ![constant MAE](results/constant.png) |
 
 ---
 
 ### *linxtrp* model
 (Badly affected by noise in the smaller populations!)
+[**CSV**](results/linxtrp.csv)
 
 | forecasts | accuracy |
 | --------- | -------- |
-| ![linxtrp forecast animation](results/linxtrp.gif) | ![linxtrp MSE](results/linxtrp.png) |
+| ![linxtrp forecast animation](results/linxtrp.gif) | ![linxtrp MAE](results/linxtrp.png) |
 
 
 ## Model comparisons
 
-The above MSE per forecast week accuracy metric is shown here for each evaluated model in the four target populations.
+The above MAE per forecast week accuracy metric is shown here for each evaluated model in the four target populations.
 
 ![USA comparison](results/USA.png)
 ![R04 comparison](results/R04.png)

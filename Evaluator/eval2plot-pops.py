@@ -14,9 +14,9 @@ pop_cs = [pc for pc in [
             ] if pc[0] in data[0]]
 name = argv[1].split('/')[-1].split('.')[0]
 
-plt.title('forecast accuracy in population {}'.format(name))
+plt.title('forecast error in population {}'.format(name))
 plt.xlabel('weeks ahead')
-plt.ylabel('%ILI mean squared error')
+plt.ylabel('%ILI mean absolute error')
 plt.xticks(range(len(data) + 1))
 for pop, c in pop_cs:
     plt.plot([d[pop] if float(d[pop]) < 5 else None for d in data], ':s', label=pop, c=c)

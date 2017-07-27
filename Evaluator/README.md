@@ -3,7 +3,7 @@
 ## The solutions
 
 Galois has received two sets of CP7 solutions from MIT.
-The [first batch](https://github.com/probcomp/ppaml-cp7/blob/59e01e26041816296d73ea0b19043f5ae387fe9b/INSTALLING.md) included *se* and *per* models in Venture (described below), as well as two different combinations of those two models, *se+per* and *seXper*.
+The [first batch](solution-docs/INSTALLING-v1.md) included *se* and *per* models in Venture (described below), as well as two different combinations of those two models, *se+per* and *seXper*.
 The combinations are not shown here since their results were very similar to the *per* model.
 
 - *per*: a periodic gaussian process model (with added white noise) on a yearly cycle
@@ -11,7 +11,7 @@ The combinations are not shown here since their results were very similar to the
 - *se*: a squared-exponential gaussian process model, also with white noise
 
 Neither of these initial models' forecast accuracy was satisfactory.
-The subsequent [revision](https://github.com/probcomp/ppaml-cp7/blob/20170707-fsaad-dpmm/INSTALLING.md) included two new models:
+The subsequent [revision](solution-docs/INSTALLING-v2.md) included two new models:
 
 - *crosscatts*: a version of Crosscat specialized for multivariate time-series data
 
@@ -35,6 +35,7 @@ Each of the MIT model took over an hour to run on an 8-core server instance.
 Despite several tries, we have not been able to run the *dsm* model to completion using the [recommended settings](https://github.com/probcomp/ppaml-cp7/blob/20170707-fsaad-dpmm/INSTALLING.md#venture_dsm) of the parameters governing inference.
 Although the solution does not run out of memory, it gets stuck mid-season.
 The *dsm* results shown below were obtained using minimal inference parameter settings.
+Solution configurations for each model run are reported [here](config/).
 
 The *fbprophet* model runs on a laptop in about 2 minutes per population, without optimization.
 The *constant* and *linextrp* models' runtimes are negligible.

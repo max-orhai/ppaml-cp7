@@ -1,0 +1,60 @@
+4,6c4
+< WORKDIR         /ppaml-cp7/scripts
+< 
+< # -- Run crash tests on the gausproc.
+---
+> # -- Bring in the full dataset, including the 2015/2016 target season.
+8c6,8
+< RUN             py.test -s -vvv gausproc.py
+---
+> WORKDIR         /ppaml-cp7
+> ADD             data /ppaml-cp7/data
+> ADD             scripts/generate_config_population_r4.py /ppaml-cp7/scripts/
+10c10
+< # -- Generate a dummy data/ directory holding out the 2014/2015 season.
+---
+> # -- Generate a dummy data/ directory holding out the 2015/2016 season.
+11a12
+> WORKDIR         /ppaml-cp7/scripts
+13c14
+<                     ../data ../2014-season 2014.21 2014.40 2015.20
+---
+>                     ../data ../2015-season 2015.21 2015.40 2016.20
+17,18c18,21
+< RUN             ./generate_config_model.py gausproc > confm
+< RUN             ./generate_config_population.py > confp
+---
+> RUN             ./generate_config_model.py gausproc \
+>                         forecast_model=gp_per+wn \
+>                         source_kernel=gps/gausproc_per.vnts > confm
+> RUN             ./generate_config_population_r4.py > confp
+20c23
+< # -- Run predictions for all weeks of the 2014/2015 flu season.
+---
+> # -- Run predictions for all weeks of the 2015/2016 flu season.
+22c25
+< RUN             for x in $(ls ../2014-season/weeks/ | grep week-); do \
+---
+> RUN             for x in $(ls ../2015-season/weeks/ | grep week-); do \
+26,28c29,31
+<                         ../2014-season \
+<                         ../2014-season/models \
+<                         ../2014-season/weeks/"$x"; \
+---
+>                         ../2015-season \
+>                         ../2015-season/models \
+>                         ../2015-season/weeks/"$x"; \
+33c36
+< RUN         echo $(ls ../2014-season/models/ | sed 's/week.*//g' | uniq) > m
+---
+> RUN         echo $(ls ../2015-season/models/ | sed 's/week.*//g' | uniq) > m
+36c39
+<                     "${x}" ../data ../2014-season/models ../2014-season/plots; \
+---
+>                     "${x}" ../data ../2015-season/models ../2015-season/plots; \
+38,39c41,42
+<                     ../2014-season/plots/"${x}"week-*.png \
+<                     ../2014-season/plots/"${x}".gif; \
+---
+>                     ../2015-season/plots/"${x}"week-*.png \
+>                     ../2015-season/plots/"${x}".gif; \

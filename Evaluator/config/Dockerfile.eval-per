@@ -1,0 +1,43 @@
+FROM            probcomp/venture:20170615
+MAINTAINER      MIT Probabilistic Computing Project
+
+# -- Bring in the full dataset, including the 2015/2016 target season.
+
+WORKDIR         /ppaml-cp7
+ADD             data /ppaml-cp7/data
+ADD             scripts/generate_config_population_r4.py /ppaml-cp7/scripts/
+
+# -- Generate a dummy data/ directory holding out the 2015/2016 season.
+
+WORKDIR         /ppaml-cp7/scripts
+RUN             ./generate_weeks_season.py \
+                    ../data ../2015-season 2015.21 2015.40 2016.20
+
+# -- Prepare configuration files.
+
+RUN             ./generate_config_model.py gausproc \
+                        forecast_model=gp_per+wn \
+                        source_kernel=gps/gausproc_per.vnts > confm
+RUN             ./generate_config_population_r4.py > confp
+
+# -- Run predictions for all weeks of the 2015/2016 flu season.
+
+RUN             for x in $(ls ../2015-season/weeks/ | grep week-); do \
+                    ./launcher.py -p4 \
+                        confp \
+                        confm \
+                        ../2015-season \
+                        ../2015-season/models \
+                        ../2015-season/weeks/"$x"; \
+                done
+
+# -- Generate plots of the forecasts into /ppaml-cp7/scripts/plots.
+
+RUN         echo $(ls ../2015-season/models/ | sed 's/week.*//g' | uniq) > m
+RUN         for x in $(cat m); do \
+                ./inspectall.sh \
+                    "${x}" ../data ../2015-season/models ../2015-season/plots; \
+                convert -delay 35 -loop 0 \
+                    ../2015-season/plots/"${x}"week-*.png \
+                    ../2015-season/plots/"${x}".gif; \
+            done;

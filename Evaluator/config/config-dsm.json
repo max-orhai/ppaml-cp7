@@ -1,0 +1,12 @@
+{
+  "mh_iterations_incremental": 10, 
+  "source_utils": "venture_domain_specific/dsm_utils.vnts", 
+  "forecast_model": "venture_dsm", 
+  "source_function": "venture_domain_specific/dsm_function.vnts", 
+  "source_prior": "venture_domain_specific/dsm_prior.vnts", 
+  "source_inference": "venture_domain_specific/dsm_inference.vnts", 
+  "mh_iterations_initial": 1, 
+  "seed": 1, 
+  "mh_chains": 10, 
+  "samples_prediction": 50
+}

@@ -1,0 +1,51 @@
+FROM            probcomp/venture:20170709
+MAINTAINER      MIT Probabilistic Computing Project
+
+ARG             forecast_model
+
+WORKDIR         /ppaml-cp7/scripts
+
+# -- Run crash tests.
+
+RUN             py.test -s -vvv crosscatts.py
+RUN             py.test -s -vvv gausproc.py
+
+# -- Generate a dummy data/ directory holding out the 2014/2015 season.
+
+RUN             ./generate_weeks_season.py \
+                    ../data ../2014-season 2014.21 2014.40 2015.20
+
+# -- Prepare configuration files.
+
+RUN             ./generate_config_model.py "${forecast_model}" > confm
+RUN             ./generate_config_population.py > confp
+
+# -- Run predictions for all weeks of the 2014/2015 flu season.
+
+RUN             for x in $(ls ../2014-season/weeks/ | grep week-); do \
+                    ./launcher.py -p4 \
+                        confp \
+                        confm \
+                        ../2014-season \
+                        ../2014-season/models \
+                        ../2014-season/weeks/"$x"; \
+                done
+
+# -- Generate plots of the forecasts into /ppaml-cp7/2014-season/plots.
+
+RUN         echo $(ls ../2014-season/models/ | sed 's/week.*//g' | uniq) > m
+RUN         for x in $(cat m); do \
+                ./inspectall.sh \
+                    "${x}" ../data ../2014-season/models ../2014-season/plots; \
+                convert -delay 35 -loop 0 \
+                    ../2014-season/plots/"${x}"week-*.png \
+                    ../2014-season/plots/"${x}".gif; \
+            done;
+
+# -- Generate MSE of the forecasts into /ppaml-cp7/2014-season/mse.
+RUN         mkdir ../2014-season/mse
+RUN         for x in $(./inspection.py get-target-populations confp); do \
+                ./inspect_all_mse.sh \
+                    ../2014-season/weeks "${forecast_model}" ../data "$x"; \
+                mv "$x"_mse.out ../2014-season/mse; \
+            done;

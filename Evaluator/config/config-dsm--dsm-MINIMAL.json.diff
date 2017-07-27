@@ -1,0 +1,10 @@
+2c2
+<   "mh_iterations_incremental": 10, 
+---
+>   "mh_iterations_incremental": 1, 
+10,11c10,11
+<   "mh_chains": 10, 
+<   "samples_prediction": 50
+---
+>   "mh_chains": 1, 
+>   "samples_prediction": 1

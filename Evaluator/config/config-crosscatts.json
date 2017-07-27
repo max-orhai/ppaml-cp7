@@ -1,0 +1,9 @@
+{
+  "mh_iterations_incremental": 100, 
+  "forecast_model": "crosscatts", 
+  "lag": 10, 
+  "mh_iterations_initial": 1000, 
+  "seed": 1, 
+  "samples_prediction": 50, 
+  "mh_chains": 15
+}

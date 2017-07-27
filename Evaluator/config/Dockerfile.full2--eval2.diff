@@ -1,0 +1,64 @@
+5a6,10
+> # -- Bring in full evaluation data set
+> 
+> WORKDIR         /ppaml-cp7
+> ADD             data /ppaml-cp7/data 
+> 
+6a12
+> ADD		scripts/generate_config_model.py .
+13c19
+< # -- Generate a dummy data/ directory holding out the 2014/2015 season.
+---
+> # -- Generate a dummy data/ directory holding out the 2015/2016 season.
+16c22
+<                     ../data ../2014-season 2014.21 2014.40 2015.20
+---
+>                     ../data ../2015-season 2015.21 2015.40 2016.20
+23c29
+< # -- Run predictions for all weeks of the 2014/2015 flu season.
+---
+> # -- Run predictions for all weeks of the 2015/2016 flu season.
+25,26c31,32
+< RUN             for x in $(ls ../2014-season/weeks/ | grep week-); do \
+<                     ./launcher.py -p4 \
+---
+> RUN             for x in $(ls ../2015-season/weeks/ | grep week-); do \
+>                     ./launcher.py -p 6 \
+29,31c35,37
+<                         ../2014-season \
+<                         ../2014-season/models \
+<                         ../2014-season/weeks/"$x"; \
+---
+>                         ../2015-season \
+>                         ../2015-season/models \
+>                         ../2015-season/weeks/"$x"; \
+34c40
+< # -- Generate plots of the forecasts into /ppaml-cp7/2014-season/plots.
+---
+> # -- Generate plots of the forecasts into /ppaml-cp7/2015-season/plots.
+36c42
+< RUN         echo $(ls ../2014-season/models/ | sed 's/week.*//g' | uniq) > m
+---
+> RUN         echo $(ls ../2015-season/models/ | sed 's/week.*//g' | uniq) > m
+39c45
+<                     "${x}" ../data ../2014-season/models ../2014-season/plots; \
+---
+>                     "${x}" ../data ../2015-season/models ../2015-season/plots; \
+41,42c47,48
+<                     ../2014-season/plots/"${x}"week-*.png \
+<                     ../2014-season/plots/"${x}".gif; \
+---
+>                     ../2015-season/plots/"${x}"week-*.png \
+>                     ../2015-season/plots/"${x}".gif; \
+45,46c51,52
+< # -- Generate MSE of the forecasts into /ppaml-cp7/2014-season/mse.
+< RUN         mkdir ../2014-season/mse
+---
+> # -- Generate MSE of the forecasts into /ppaml-cp7/2015-season/mse.
+> RUN         mkdir ../2015-season/mse
+49,50c55,56
+<                     ../2014-season/weeks "${forecast_model}" ../data "$x"; \
+<                 mv "$x"_mse.out ../2014-season/mse; \
+---
+>                     ../2015-season/weeks "${forecast_model}" ../data "$x"; \
+>                 mv "$x"_mse.out ../2015-season/mse; \

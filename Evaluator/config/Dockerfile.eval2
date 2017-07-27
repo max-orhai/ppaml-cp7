@@ -1,0 +1,57 @@
+FROM            probcomp/venture:20170709
+MAINTAINER      MIT Probabilistic Computing Project
+
+ARG             forecast_model
+
+# -- Bring in full evaluation data set
+
+WORKDIR         /ppaml-cp7
+ADD             data /ppaml-cp7/data 
+
+WORKDIR         /ppaml-cp7/scripts
+ADD		scripts/generate_config_model.py .
+
+# -- Run crash tests.
+
+RUN             py.test -s -vvv crosscatts.py
+RUN             py.test -s -vvv gausproc.py
+
+# -- Generate a dummy data/ directory holding out the 2015/2016 season.
+
+RUN             ./generate_weeks_season.py \
+                    ../data ../2015-season 2015.21 2015.40 2016.20
+
+# -- Prepare configuration files.
+
+RUN             ./generate_config_model.py "${forecast_model}" > confm
+RUN             ./generate_config_population.py > confp
+
+# -- Run predictions for all weeks of the 2015/2016 flu season.
+
+RUN             for x in $(ls ../2015-season/weeks/ | grep week-); do \
+                    ./launcher.py -p 6 \
+                        confp \
+                        confm \
+                        ../2015-season \
+                        ../2015-season/models \
+                        ../2015-season/weeks/"$x"; \
+                done
+
+# -- Generate plots of the forecasts into /ppaml-cp7/2015-season/plots.
+
+RUN         echo $(ls ../2015-season/models/ | sed 's/week.*//g' | uniq) > m
+RUN         for x in $(cat m); do \
+                ./inspectall.sh \
+                    "${x}" ../data ../2015-season/models ../2015-season/plots; \
+                convert -delay 35 -loop 0 \
+                    ../2015-season/plots/"${x}"week-*.png \
+                    ../2015-season/plots/"${x}".gif; \
+            done;
+
+# -- Generate MSE of the forecasts into /ppaml-cp7/2015-season/mse.
+RUN         mkdir ../2015-season/mse
+RUN         for x in $(./inspection.py get-target-populations confp); do \
+                ./inspect_all_mse.sh \
+                    ../2015-season/weeks "${forecast_model}" ../data "$x"; \
+                mv "$x"_mse.out ../2015-season/mse; \
+            done;

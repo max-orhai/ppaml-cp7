@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 from numpy import array
 from scipy.optimize import minimize
@@ -25,7 +25,7 @@ def fit(rates):
         final = list(result.x) + [result.fun]
         return final
     else:
-        return unicode(result.message)
+        return str(result.message)
 
 
 def sir_fits(seasons, omit=[], only=[]):
@@ -47,14 +47,14 @@ def prettyprint(fitted):
     print('season ' + '-' * 40 + ' SSE')
     for year in sorted(fitted.keys()):
         result = fitted[year]
-        if isinstance(result, unicode):
-            print(unicode(year) + '    ' + red(result))
+        if isinstance(result, str):
+            print(str(year) + '    ' + red(result))
         else:
             def fmt(idx):
                 num = result[idx]
                 string = '{: 8.4f}'.format(num)
                 return red(string) if num in bounds[idx] else string
-            print(unicode(year) + '  ' + ' '.join(map(fmt, [0, 1, 2, 3])) +
+            print(str(year) + '  ' + ' '.join(map(fmt, [0, 1, 2, 3])) +
                   '   {: 7.3f}'.format(result[4]))
     stats = []
     for i in range(5):
@@ -79,8 +79,8 @@ if __name__ == '__main__':
     xo.add_argument('-x', '--omit', help='comma-delimited years to omit')
     xo.add_argument('-o', '--only', help='comma-delimited years to select')
     args = ap.parse_args()
-    args.only = map(int, args.only.split(',')) if args.only else []
-    args.omit = map(int, args.omit.split(',')) if args.omit else []
+    args.only = list(map(int, args.only.split(',')) if args.only else [])
+    args.omit = list(map(int, args.omit.split(',')) if args.omit else [])
 
     # for simplicity, label each season by its start year
     seasons = {int(years[:4]): rates for (years, rates) in
@@ -96,13 +96,13 @@ if __name__ == '__main__':
         i = 0
         for year in sorted(fits.keys()):
             if isinstance(fits[year], list):
-                color = 'C' + unicode(i)
+                color = 'C' + str(i)
                 plt.plot(seasons[year], color=color, linestyle='', marker='.')
                 plt.plot(epi_at(*fits[year][:4]), color=color, alpha=0.6,
-                         label=unicode(year))
+                         label=str(year))
                 i = (i + 1) % 10
-        plt.plot(epi_at(*list(x0)), color='#89fe05', label='initial')
-        plt.plot(epi_at(*means), color='k', label='mean')
+        # plt.plot(epi_at(*list(x0)), color='#89fe05', label='initial')
+        # plt.plot(epi_at(*means), color='k', label='mean')
         plt.title(args.plot)
         plt.legend(loc='upper left', frameon=False)
         plt.show()

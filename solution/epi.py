@@ -21,7 +21,7 @@ def iterate(f, v):
 
 
 def take(n, gen):
-    return [gen.next() for _ in range(n)]
+    return [next(gen) for _ in range(n)]
 
 
 # the SIR model as an iterator

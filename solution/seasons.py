@@ -14,7 +14,7 @@ from sys import stdout
 from csv import DictReader, DictWriter
 
 
-week_seq = ['{:02}'.format(wk) for wk in range(30, 54) + range(1, 30)]
+week_seq = ['{:02}'.format(wk) for wk in list(range(30, 54)) + list(range(1, 30))]
 
 
 def new_season():
@@ -45,7 +45,7 @@ def to_seasons(filename, col_name):
             this_season['years'] = '{}-{}'.format(*these_years)
             seasons.append(this_season)
             this_season = new_season()
-            these_years = map(succ, these_years)
+            these_years = tuple(map(succ, these_years))
         this_season[wk] = ili
     this_season['years'] = '{}-{}'.format(*these_years)
     seasons.append(this_season)
@@ -69,6 +69,7 @@ def spew(seasons):
 
 
 def mean_sd(numbers):
+    assert len(numbers) > 0
     mean = sum(numbers) / len(numbers)
     variance = sum([(x - mean) ** 2 for x in numbers]) / len(numbers)
     return (mean, variance ** 0.5)
@@ -121,7 +122,7 @@ def seasons_for(filename, col_name):
         except ValueError:
             return None
     raw = map(years_tidy, to_seasons(filename, col_name))
-    return [(years, map(float_or_none, season)) for (years, season) in raw]
+    return [(years, list(map(float_or_none, season))) for (years, season) in raw]
 
 
 if __name__ == '__main__':

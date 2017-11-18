@@ -9,9 +9,11 @@ from seasons import mean_sd, seasons_for
 
 
 #              beta         gamma         onset          base
-x0 = array([   1.33    ,   1.04     ,      0.0      ,    0.5    ])  # initial value
+x0 = array([   1.45,        1.13,          1.94,         0.815 ])   # initial value
 bounds =   [(0.5, 2.5) , (1.0, 2.5) , (-15.0, 10.0) , (0.0, 2.0)]   # (min, max)
 # R0 is the 'basic reproductive ratio', defined as beta / gamma
+# x0 was obtained iteratively (3 or 4 steps) from the mean values fitted for USA,
+# excluding 2008/2009 outliers
 
 
 def fit(rates):
@@ -73,8 +75,11 @@ if __name__ == '__main__':
     ap = ArgumentParser(description='Fit SIR curves to CP7.3 flu data')
     ap.add_argument('file', help='a CP7.3 population data CSV')
     ap.add_argument('column', help='a column in the CSV')
-    ap.add_argument('-p', '--plot', help='plot the fitted curves with title',
-                    metavar='TITLE')
+    ps = ap.add_mutually_exclusive_group()
+    ps.add_argument('-p', '--plot', metavar='TITLE',
+                    help='plot the fitted curves with title')
+    ps.add_argument('-s', '--scatter', metavar='TITLE',
+                    help='scatter-plot fitted model parameters with title')
     xo = ap.add_mutually_exclusive_group()
     xo.add_argument('-x', '--omit', help='comma-delimited years to omit')
     xo.add_argument('-o', '--only', help='comma-delimited years to select')
@@ -86,6 +91,7 @@ if __name__ == '__main__':
     seasons = {int(years[:4]): rates for (years, rates) in
                seasons_for(args.file, args.column)}
     fits = sir_fits(seasons, args.omit, args.only)
+    
     stats = prettyprint(fits)
     means = [stats[i][0] for i in [0, 1, 2, 3]]
 
@@ -97,12 +103,36 @@ if __name__ == '__main__':
         for year in sorted(fits.keys()):
             if isinstance(fits[year], list):
                 color = 'C' + str(i)
-                plt.plot(seasons[year], color=color, linestyle='', marker='.')
-                plt.plot(epi_at(*fits[year][:4]), color=color, alpha=0.6,
-                         label=str(year))
+                plt.plot(seasons[year], color=color, marker='.', markersize=10)
+                plt.plot(epi_at(*fits[year][:4]), color=color, alpha=0.6, linewidth=3,
+                         label='{} (SSE:{: 7.3f})'.format(year, fits[year][-1]))
                 i = (i + 1) % 10
         # plt.plot(epi_at(*list(x0)), color='#89fe05', label='initial')
         # plt.plot(epi_at(*means), color='k', label='mean')
         plt.title(args.plot)
         plt.legend(loc='upper left', frameon=False)
         plt.show()
+
+    if args.scatter:
+        import matplotlib.pyplot as plt
+        plt.xlabel('onset week')
+        plt.ylabel('R0 = beta / gamma')
+
+        r0s, onsets, bases, scores = [], [], [], []
+        for year, x in sorted(fits.items()):
+            if isinstance(x, list):
+                r0 = x[0] / x[1]
+                r0s.append(r0)
+                onsets.append(x[2])
+                bases.append(100* x[3])
+                scores.append(x[4])
+                plt.annotate(year, xy=(x[2], r0), xytext=(0, 0),
+                             textcoords='offset points', ha='left', va='bottom')
+
+        plt.scatter(onsets, r0s, s=bases, c=scores, cmap='coolwarm', edgecolor='black')
+        plt.colorbar()
+        plt.title(args.scatter)
+        plt.show()
+
+
+

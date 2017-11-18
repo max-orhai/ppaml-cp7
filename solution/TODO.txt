@@ -2,12 +2,5 @@ TODO
 
 (Focus first on USA population, SIR model.)
 
-spaghetti plot all seasons
-    ... aligned on peaks
-    ... normalized scale
-fit SIR curves (beta, gamma, onset, base) to each season
-plot against data to hilite differences
-hand-adjust or exclude the worst fits
-plot all these fit curve parameter points together
-calculate their joint distribution as initial population model
-bayesian update model on each new week
+Given prior parameter distribution, evaluate target season nowcast-style.
+Define beta/gamma relation to bound peak and height predictions?

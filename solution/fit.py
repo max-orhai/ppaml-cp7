@@ -92,9 +92,6 @@ if __name__ == '__main__':
                seasons_for(args.file, args.column)}
     fits = sir_fits(seasons, args.omit, args.only)
     
-    stats = prettyprint(fits)
-    means = [stats[i][0] for i in [0, 1, 2, 3]]
-
     if args.plot:
         import matplotlib.pyplot as plt
         plt.xlabel('Weeks from season start')
@@ -113,26 +110,29 @@ if __name__ == '__main__':
         plt.legend(loc='upper left', frameon=False)
         plt.show()
 
-    if args.scatter:
+    elif args.scatter:
         import matplotlib.pyplot as plt
-        plt.xlabel('onset week')
-        plt.ylabel('R0 = beta / gamma')
+        plt.xlabel('beta')
+        plt.ylabel('R0 = beta / gamma')  # 'gamma')
 
-        r0s, onsets, bases, scores = [], [], [], []
-        for year, x in sorted(fits.items()):
-            if isinstance(x, list):
-                r0 = x[0] / x[1]
-                r0s.append(r0)
-                onsets.append(x[2])
-                bases.append(100* x[3])
-                scores.append(x[4])
-                plt.annotate(year, xy=(x[2], r0), xytext=(0, 0),
-                             textcoords='offset points', ha='left', va='bottom')
+        xs = [[yr] + x for yr, x in sorted(fits.items())]
+        years, betas, gammas, onsets, bases, scores = list(zip(*xs))
+        r0s = [b / g for b,g in zip(betas, gammas)]
+        
+        for year, beta, r0 in zip(years, betas, r0s):
+            plt.annotate(year, xy=(beta, r0), xytext=(5, 0),
+                         textcoords='offset points', ha='left', va='bottom')
 
-        plt.scatter(onsets, r0s, s=bases, c=scores, cmap='coolwarm', edgecolor='black')
-        plt.colorbar()
+        scat = plt.scatter(betas, r0s, s=[100 * b for b in bases], c=scores,
+                           cmap='coolwarm', edgecolor='black')
+        cbar = plt.colorbar(scat)
+        cbar.ax.set_xlabel('SSE')
+
         plt.title(args.scatter)
         plt.show()
 
+    else:
+        stats = prettyprint(fits)
+        # means = [stats[i][0] for i in [0, 1, 2, 3]]
 
 

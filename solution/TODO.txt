@@ -3,6 +3,9 @@ TODO
 (Focus first on USA population, SIR model.)
 
 Define beta/gamma relation to bound peak and height predictions?
+(bound R0 during search!)
+Use weighed average of previous seasons' rates as proxy values?
+
 Or, refine exp (or other logistic growth) model for this purpose.
 
 Save some time to document progress!
